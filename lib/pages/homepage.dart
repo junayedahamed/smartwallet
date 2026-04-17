@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:smartwallet/database/database.dart';
 import 'package:smartwallet/pages/balance_controller.dart';
 import 'package:smartwallet/pages/history.dart';
@@ -39,30 +40,31 @@ class _HomePageState extends State<HomePage> {
           const ProfilePage(),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: currentTab,
-        onDestinationSelected: (value) {
-          setState(() {
-            currentTab = value;
-          });
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded),
-            label: "Home",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.history_outlined),
-            selectedIcon: Icon(Icons.history),
-            label: "History",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline_rounded),
-            selectedIcon: Icon(Icons.person_rounded),
-            label: "Profile",
-          ),
-        ],
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+        child: GNav(
+          selectedIndex: currentTab,
+          gap: 8,
+          onTabChange: (value) {
+            setState(() {
+              currentTab = value;
+            });
+          },
+          tabs: const [
+            GButton(
+              icon: Icons.home_rounded,
+              text: "Home",
+            ),
+            GButton(
+              icon: Icons.history,
+              text: "History",
+            ),
+            GButton(
+              icon: Icons.person_rounded,
+              text: "Profile",
+            ),
+          ],
+        ),
       ),
       floatingActionButton: (currentTab == 1)
           ? FloatingActionButton.extended(
