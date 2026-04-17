@@ -3,20 +3,67 @@ import 'package:intl/intl.dart';
 import 'package:smartwallet/database/database.dart';
 import 'package:smartwallet/utils/double_formatter.dart';
 
-class HistoryPage extends StatelessWidget {
+class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final moneys = WalletDb.instance.getMoneyList().reversed.toList();
+  State<HistoryPage> createState() => _HistoryPageState();
+}
 
-    if (moneys.isEmpty) {
+class _HistoryPageState extends State<HistoryPage> {
+  DateTime? _selectedDate;
+  String _filterType = 'all';
+
+  List<Money> _getFilteredMoneys() {
+    final allMoneys = WalletDb.instance.getMoneyList().reversed.toList();
+    final now = DateTime.now();
+
+    switch (_filterType) {
+      case '1day':
+        return allMoneys
+            .where((m) =>
+                m.dateTime.isAfter(now.subtract(const Duration(days: 1))))
+            .toList();
+      case '3days':
+        return allMoneys
+            .where((m) =>
+                m.dateTime.isAfter(now.subtract(const Duration(days: 3))))
+            .toList();
+      case '7days':
+        return allMoneys
+            .where((m) =>
+                m.dateTime.isAfter(now.subtract(const Duration(days: 7))))
+            .toList();
+      case '30days':
+        return allMoneys
+            .where((m) =>
+                m.dateTime.isAfter(now.subtract(const Duration(days: 30))))
+            .toList();
+      case 'custom':
+        if (_selectedDate == null) return [];
+        return allMoneys
+            .where((m) =>
+                m.dateTime.year == _selectedDate!.year &&
+                m.dateTime.month == _selectedDate!.month &&
+                m.dateTime.day == _selectedDate!.day)
+            .toList();
+      default:
+        return allMoneys;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredMoneys = _getFilteredMoneys();
+    final theme = Theme.of(context);
+
+    if (WalletDb.instance.getMoneyList().isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
             "No transaction history yet.",
-            style: Theme.of(context).textTheme.bodyLarge,
+            style: theme.textTheme.bodyLarge,
           ),
         ),
       );
@@ -44,7 +91,7 @@ class HistoryPage extends StatelessWidget {
                     const SizedBox(height: 10),
                     Text(
                       "Transaction timeline",
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: theme.textTheme.titleMedium,
                     ),
                   ],
                 ),
@@ -52,20 +99,167 @@ class HistoryPage extends StatelessWidget {
             ),
           ),
         ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              return HistoryListTile(
-                money: moneys[index],
-                balance: doubleFormatter(WalletDb.instance
-                    .balanceAtIndex(moneys.length - index - 1)),
-              );
-            },
-            childCount: moneys.length,
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+            child: _buildFilterBar(context),
+          ),
+        ),
+        if (filteredMoneys.isEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Center(
+                child: Text(
+                  "No transactions found for this period.",
+                  style: theme.textTheme.bodyMedium,
+                ),
+              ),
+            ),
+          )
+        else
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final reversedList =
+                    WalletDb.instance.getMoneyList().reversed.toList();
+                final transactionIndex =
+                    reversedList.indexOf(filteredMoneys[index]);
+                return HistoryListTile(
+                  money: filteredMoneys[index],
+                  balance: doubleFormatter(
+                    WalletDb.instance.balanceAtIndex(transactionIndex),
+                  ),
+                );
+              },
+              childCount: filteredMoneys.length,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildFilterBar(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Filter by date",
+          style: theme.textTheme.titleSmall,
+        ),
+        const SizedBox(height: 12),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              _FilterButton(
+                label: "All time",
+                isSelected: _filterType == 'all',
+                onPressed: () => setState(() {
+                  _filterType = 'all';
+                  _selectedDate = null;
+                }),
+              ),
+              const SizedBox(width: 8),
+              _FilterButton(
+                label: "Last 1 day",
+                isSelected: _filterType == '1day',
+                onPressed: () => setState(() {
+                  _filterType = '1day';
+                  _selectedDate = null;
+                }),
+              ),
+              const SizedBox(width: 8),
+              _FilterButton(
+                label: "Last 3 days",
+                isSelected: _filterType == '3days',
+                onPressed: () => setState(() {
+                  _filterType = '3days';
+                  _selectedDate = null;
+                }),
+              ),
+              const SizedBox(width: 8),
+              _FilterButton(
+                label: "Last 7 days",
+                isSelected: _filterType == '7days',
+                onPressed: () => setState(() {
+                  _filterType = '7days';
+                  _selectedDate = null;
+                }),
+              ),
+              const SizedBox(width: 8),
+              _FilterButton(
+                label: "Last 30 days",
+                isSelected: _filterType == '30days',
+                onPressed: () => setState(() {
+                  _filterType = '30days';
+                  _selectedDate = null;
+                }),
+              ),
+              const SizedBox(width: 8),
+              FilledButton.icon(
+                onPressed: () => _showDatePicker(context),
+                icon: const Icon(Icons.calendar_today_rounded),
+                label: _selectedDate == null
+                    ? const Text("Pick date")
+                    : Text(DateFormat("dd MMM").format(_selectedDate!)),
+                style: FilledButton.styleFrom(
+                  backgroundColor: _filterType == 'custom'
+                      ? colorScheme.primary
+                      : colorScheme.primaryContainer,
+                ),
+              ),
+            ],
           ),
         ),
       ],
     );
+  }
+
+  void _showDatePicker(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+      lastDate: DateTime.now(),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedDate = picked;
+        _filterType = 'custom';
+      });
+    }
+  }
+}
+
+class _FilterButton extends StatelessWidget {
+  const _FilterButton({
+    required this.label,
+    required this.isSelected,
+    required this.onPressed,
+  });
+
+  final String label;
+  final bool isSelected;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    // final colorScheme = Theme.of(context).colorScheme;
+
+    return isSelected
+        ? FilledButton(
+            onPressed: onPressed,
+            child: Text(label),
+          )
+        : OutlinedButton(
+            onPressed: onPressed,
+            child: Text(label),
+          );
   }
 }
 
