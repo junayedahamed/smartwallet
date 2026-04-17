@@ -224,6 +224,8 @@ class _HomePageState extends State<HomePage> {
                           ElevatedButton(
                             onPressed: () {
                               // clean the waste text field
+                              if (wasteController.text.isEmpty) return;
+
                               WalletDb.instance.addMoney(
                                 Money(
                                   -1 * double.parse(wasteController.text),

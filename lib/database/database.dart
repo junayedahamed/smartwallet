@@ -170,9 +170,10 @@ class WalletDb {
     String? path;
     try {
       if (Platform.isMacOS || Platform.isWindows) {
+        final fileName = DateTime.now().microsecondsSinceEpoch.toString();
         path = await FilePicker.platform.saveFile(
           allowedExtensions: ["pdf"],
-          fileName: "testing.pdf",
+          fileName: "history$fileName.pdf",
         );
       } else {
         path = await FilePicker.platform.getDirectoryPath();
