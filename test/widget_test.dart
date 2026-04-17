@@ -1,30 +1,44 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:smartwallet/pages/my_app.dart';
+import 'package:smartwallet/pages/first_page.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Onboarding page renders key fields',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: FirstPage(),
+      ),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpAndSettle();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    expect(find.text('Welcome to SmartWallet'), findsOneWidget);
+    expect(find.text('Start Tracking'), findsOneWidget);
+    expect(find.text('Initial balance'), findsOneWidget);
+    expect(find.text('Daily need'), findsOneWidget);
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('Onboarding validates 200000 max balance',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: FirstPage(),
+      ),
+    );
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Initial balance'),
+      '200001',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Daily need'),
+      '200',
+    );
+
+    await tester.tap(find.text('Start Tracking'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Maximum balance is 200000'), findsOneWidget);
   });
 }

@@ -1,29 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:smartwallet/database/database.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:smartwallet/utils/double_formatter.dart';
 
-class HistoryPage extends StatefulWidget {
+class HistoryPage extends StatelessWidget {
   const HistoryPage({super.key});
 
   @override
-  State<HistoryPage> createState() => _HistoryPageState();
-}
-
-class _HistoryPageState extends State<HistoryPage> {
-  @override
   Widget build(BuildContext context) {
-    List<Money> moneys = WalletDb.instance.getMoneyList().reversed.toList();
+    final moneys = WalletDb.instance.getMoneyList().reversed.toList();
+
+    if (moneys.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(
+            "No transaction history yet.",
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+        ),
+      );
+    }
+
     return CustomScrollView(
       slivers: [
-        SliverList(
-          delegate: SliverChildListDelegate.fixed(
-            [
-              Image(
-                image: const AssetImage("assets/animated/history.gif")..evict(),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Card(
+              clipBehavior: Clip.antiAlias,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image(
+                        image: const AssetImage("assets/animated/history.gif")
+                          ..evict(),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "Transaction timeline",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ],
+                ),
               ),
-            ],
+            ),
           ),
         ),
         SliverList(
@@ -51,42 +77,48 @@ class HistoryListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final amountColor =
+        (money.amount >= 0) ? colorScheme.primary : colorScheme.error;
+    final reason = (money.reason == null || money.reason!.trim().isEmpty)
+        ? "No reason"
+        : money.reason!.trim();
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Material(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(
-            color: Theme.of(context).colorScheme.onSurface,
-            width: 1,
-          ),
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      child: Card(
         child: ListTile(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           title: Text(
-            "${DateFormat("dd-MM-yyyy").format(money.dateTime)}\n${DateFormat.jm().format(money.dateTime)}\nReason: ${money.reason}",
-            style: GoogleFonts.lato(),
+            reason,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.titleSmall,
           ),
-          subtitle: RichText(
-            text: TextSpan(
-              text: "Amount: ",
-              style: Theme.of(context).textTheme.bodyMedium,
-              children: [
-                TextSpan(
-                  text: doubleFormatter(money.amount),
-                  style: TextStyle(
-                      color: (money.amount >= 0)
-                          ? Colors.green
-                          : Colors.red.shade400),
+          subtitle: Text(
+            "${DateFormat("dd MMM yyyy • hh:mm a").format(money.dateTime)}\nBalance: ${balance ?? "--"}",
+            style: theme.textTheme.bodySmall,
+          ),
+          isThreeLine: true,
+          trailing: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                (money.amount >= 0) ? "Added" : "Spent",
+                style: theme.textTheme.labelSmall,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                doubleFormatter(money.amount),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: amountColor,
+                  fontWeight: FontWeight.w700,
                 ),
-              ],
-            ),
-          ),
-          trailing: Padding(
-            padding: const EdgeInsets.only(top: 13),
-            child: Text(
-              balance ?? "",
-              style: const TextStyle(fontSize: 16),
-            ),
+              ),
+            ],
           ),
         ),
       ),

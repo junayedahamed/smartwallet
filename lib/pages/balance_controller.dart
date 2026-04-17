@@ -11,12 +11,15 @@ class BalanceController extends ChangeNotifier {
   int get perDayNeed => _perDayNeed;
 
   void setPerDay(int value) {
-    _perDayNeed = value;
+    _perDayNeed = (value <= 0) ? 1 : value;
     _updatePerDay(_perDayNeed);
     notifyListeners();
   }
 
   int dayLeft() {
+    if (_perDayNeed <= 0) {
+      return 0;
+    }
     return _balance ~/ _perDayNeed;
   }
 
@@ -29,5 +32,8 @@ class BalanceController extends ChangeNotifier {
     var pref = await SharedPreferences.getInstance();
 
     _perDayNeed = pref.getInt("dayKey") ?? 1;
+    if (_perDayNeed <= 0) {
+      _perDayNeed = 1;
+    }
   }
 }

@@ -1,8 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
-//import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartwallet/database/database.dart';
 import 'package:smartwallet/pages/balance_controller.dart';
 import 'package:smartwallet/pages/history.dart';
@@ -20,340 +17,313 @@ class _HomePageState extends State<HomePage> {
   int currentTab = 0;
 
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController wasteController = TextEditingController();
-  final TextEditingController reason = TextEditingController();
+  final TextEditingController amountController = TextEditingController();
+  final TextEditingController reasonController = TextEditingController();
+
+  @override
+  void dispose() {
+    amountController.dispose();
+    reasonController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: (currentTab == 0 || currentTab == 2)
-          ? null
-          : AppBar(
-              title: const Center(
-                child: Text(
-                  "H I S T O R Y",
-                ),
-              ),
-            ),
-      body: [
-        SafeArea(
-          child: Form(
-            key: _formKey,
-            child: StreamBuilder(
-                stream: WalletDb.instance.snapshot(),
-                builder: (context, snapshot) {
-                  return ListView(
-                    children: [
-                      const SizedBox(
-                        height: 50,
-                      ),
-                      Center(
-                        child: Container(
-                          height: MediaQuery.of(context).size.height * .34,
-                          width: MediaQuery.of(context).size.width,
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 15),
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              bottomRight: Radius.circular(20),
-                              bottomLeft: Radius.circular(20),
-                              topRight: Radius.circular(20),
-                            ),
-                            border: Border.all(width: .5, color: Colors.black),
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.topRight,
-                              colors: [
-                                Colors.green.shade100,
-                                Colors.white,
-                                Colors.lightGreen.shade200,
-                              ],
-                            ),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              StreamBuilder(
-                                  stream: WalletDb.instance.snapshot(),
-                                  builder: (context, snapshot) {
-                                    return Flexible(
-                                      child: Text(
-                                        doubleFormatter(
-                                            WalletDb.instance.totalAmount()),
-                                        style: const TextStyle(
-                                            fontSize: 60, color: Colors.black),
-                                      ),
-                                    );
-                                  }),
+      appBar: _buildAppBar(),
+      body: IndexedStack(
+        index: currentTab,
+        children: [
+          _buildHomeTab(context),
+          const HistoryPage(),
+          const ProfilePage(),
+        ],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: currentTab,
+        onDestinationSelected: (value) {
+          setState(() {
+            currentTab = value;
+          });
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home_rounded),
+            label: "Home",
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.history_outlined),
+            selectedIcon: Icon(Icons.history),
+            label: "History",
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline_rounded),
+            selectedIcon: Icon(Icons.person_rounded),
+            label: "Profile",
+          ),
+        ],
+      ),
+      floatingActionButton: (currentTab == 1)
+          ? FloatingActionButton.extended(
+              onPressed: () => WalletDb.instance
+                  .exportHistoryToPdf(ScaffoldMessenger.of(context), context),
+              icon: const Icon(Icons.picture_as_pdf_rounded),
+              label: const Text("Export PDF"),
+            )
+          : null,
+    );
+  }
 
-                              StreamBuilder(
-                                stream: WalletDb.instance.snapshot(),
-                                builder: (context, snapshot) {
-                                  return Text(
-                                    "\t \t\t\t Assume ${BalanceController.instance.dayLeft()} day left!",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        color: Colors.blue.shade900,
-                                        fontWeight: FontWeight.w500),
-                                  );
-                                },
-                              ),
-                              // Text("Hello"),
-                            ],
+  AppBar? _buildAppBar() {
+    if (currentTab == 1) {
+      return AppBar(title: const Text("History"));
+    }
+    if (currentTab == 2) {
+      return AppBar(title: const Text("Profile"));
+    }
+    return null;
+  }
+
+  Widget _buildHomeTab(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return SafeArea(
+      child: StreamBuilder(
+        stream: WalletDb.instance.snapshot(),
+        builder: (context, snapshot) {
+          final transactions = WalletDb.instance.getMoneyList();
+          final recentTransactions = transactions.reversed.take(3).toList();
+
+          return ListView(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 28),
+            children: [
+              _buildBalanceCard(theme),
+              const SizedBox(height: 16),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Form(
+                    key: _formKey,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Add a transaction",
+                          style: theme.textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: reasonController,
+                          textInputAction: TextInputAction.next,
+                          maxLength: 60,
+                          decoration: const InputDecoration(
+                            labelText: "Reason (optional)",
+                            hintText: "Groceries, Salary, Rent...",
                           ),
                         ),
-                      ),
-                      // Center(
-                      //   child: Container(
-                      //     //width: 280,
-                      //     decoration: BoxDecoration(
-                      //       border: Border.all(
-                      //         color: Theme.of(context).colorScheme.onSurface,
-                      //       ),
-                      //       borderRadius: BorderRadius.circular(20),
-                      //     ),
-                      //     child: const Padding(
-                      //       padding: const EdgeInsets.symmetric(horizontal: 80),
-                      //       child: Row(
-                      //         mainAxisSize: MainAxisSize.min,
-                      //         children: [
-                      //           //balance show
-                      //           //container for design more by Murad
-
-                      //           // StreamBuilder(
-                      //           //     stream: WalletDb.instance.snapshot(),
-                      //           //     builder: (context, snapshot) {
-                      //           //       return Flexible(
-                      //           //         child: Text(
-                      //           //           doubleFormatter(
-                      //           //               WalletDb.instance.totalAmount()),
-                      //           //           style: const TextStyle(fontSize: 60),
-                      //           //         ),
-                      //           //       );
-                      //           //     }),
-                      //           // // const SizedBox(
-                      //           // //   width: 30,
-                      //           // // ),
-                      //           // //emoji
-                      //           // Container(
-                      //           //   height: 50,
-                      //           //   decoration: BoxDecoration(
-                      //           //     //color: Colors.white,
-                      //           //     borderRadius: BorderRadius.circular(25),
-                      //           //   ),
-                      //           //   child: AnimatedBuilder(
-                      //           //       //stream: null,
-                      //           //       animation: BalanceController.instance,
-                      //           //       builder: (context, snapshot) {
-                      //           //         return Image.asset(
-                      //           //           emojiResponse(),
-                      //           //         );
-                      //           //       }),
-                      //           // ),
-                      //         ],
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      // StreamBuilder(
-                      //   stream: WalletDb.instance.snapshot(),
-                      //   builder: (context, snapshot) {
-                      //     return Text(
-                      //       "Assume ${BalanceController.instance.dayLeft()} day left!",
-                      //       textAlign: TextAlign.center,
-                      //     );
-                      //   },
-                      // ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Row(
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: amountController,
+                          keyboardType: TextInputType.number,
+                          textInputAction: TextInputAction.done,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(6),
+                          ],
+                          validator: _amountValidator,
+                          decoration: InputDecoration(
+                            labelText: "Amount",
+                            hintText: "0",
+                            helperText:
+                                "Whole number only • max ${WalletDb.maxTransactionAmount}",
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        Row(
                           children: [
                             Expanded(
-                              child: TextFormField(
-                                controller: reason,
-                                textAlign: TextAlign.center,
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(23),
-                                  ),
-                                  hintText: "Reason",
+                              child: OutlinedButton.icon(
+                                onPressed: () => _submitTransaction(
+                                  isAddition: false,
                                 ),
+                                icon: const Icon(Icons.remove_rounded),
+                                label: const Text("Use Money"),
                               ),
                             ),
-                            const SizedBox(width: 10),
-                            SizedBox(
-                              width: 100,
-                              child: TextFormField(
-                                controller: wasteController,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter(
-                                      RegExp(r"^[0-9]*$"),
-                                      allow: true)
-                                ],
-                                textAlign: TextAlign.center,
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(23),
-                                  ),
-                                  hintText: "Amount",
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: FilledButton.icon(
+                                onPressed: () => _submitTransaction(
+                                  isAddition: true,
                                 ),
+                                icon: const Icon(Icons.add_rounded),
+                                label: const Text("Add Money"),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      //cutting button
-                      //
-                      //
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          //
-                          //use money button
-                          ElevatedButton(
-                            onPressed: () {
-                              // clean the waste text field
-                              if (wasteController.text.isEmpty) return;
-
-                              WalletDb.instance.addMoney(
-                                Money(
-                                  -1 * double.parse(wasteController.text),
-                                  reason: reason.text.trim(),
-                                ),
-                              );
-                              //clean the reason text field
-                              wasteController.clear();
-                              reason.clear();
-                            },
-                            child: const Text("Use Money"),
-                          ),
-                          const SizedBox(
-                            width: 8,
-                          ),
-
-                          //
-                          //add money button
-                          ElevatedButton(
-                            onPressed: () {
-                              WalletDb.instance.addMoney(
-                                Money(
-                                  double.parse(wasteController.text),
-                                  reason: reason.text.trim(),
-                                ),
-                              );
-                              // clean the waste text field
-                              wasteController.clear();
-                              //clean the reason text field
-                              reason.clear();
-                            },
-                            child: const Text("Add Money"),
-                          ),
-                        ],
-                      ),
-                      if (WalletDb.instance.getMoneyList().isNotEmpty)
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              if (recentTransactions.isEmpty)
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Text(
+                      "No transactions yet. Add your first entry above.",
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ),
+                )
+              else
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Card(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                children: [
-                                  for (int i = 0;
-                                      i <=
-                                          ((WalletDb.instance
-                                                      .getMoneyList()
-                                                      .length >=
-                                                  3)
-                                              ? 2
-                                              : WalletDb.instance
-                                                      .getMoneyList()
-                                                      .length -
-                                                  1);
-                                      i++) ...[
-                                    HistoryListTile(
-                                        money: WalletDb.instance
-                                            .getMoneyList()
-                                            .reversed
-                                            .elementAt(i)),
-                                  ]
-                                ],
-                              ),
+                          padding: const EdgeInsets.symmetric(horizontal: 6),
+                          child: Text(
+                            "Recent transactions",
+                            style: theme.textTheme.titleMedium,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        for (int i = 0; i < recentTransactions.length; i++)
+                          HistoryListTile(
+                            money: recentTransactions[i],
+                            balance: doubleFormatter(
+                              WalletDb.instance
+                                  .balanceAtIndex(transactions.length - i - 1),
                             ),
                           ),
-                        )
-                    ],
-                  );
-                }),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBalanceCard(ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+    final balance = WalletDb.instance.totalAmount();
+    final daysLeft = BalanceController.instance.dayLeft();
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              colorScheme.primaryContainer,
+              colorScheme.surface,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
-        const HistoryPage(),
-        const ProfilePage(),
-      ][currentTab],
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: GNav(
-          selectedIndex: currentTab,
-          color: Theme.of(context).colorScheme.onSurface,
-          activeColor: Theme.of(context).colorScheme.primary,
-          onTabChange: (value) {
-            setState(() {
-              currentTab = value;
-            });
-          },
-          tabs: const [
-            GButton(
-              icon: CupertinoIcons.home,
-              text: " Home",
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Current balance",
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
-            GButton(
-              icon: CupertinoIcons.news,
-              text: " History",
+            const SizedBox(height: 8),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                doubleFormatter(balance),
+                style: theme.textTheme.displaySmall?.copyWith(
+                  color: colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
-            GButton(
-              icon: CupertinoIcons.chart_bar,
-              text: " More",
+            const SizedBox(height: 8),
+            Text(
+              "Estimated days left: $daysLeft",
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: [
-        // FloatingActionButton.extended(
-        //   onPressed: () async {
-        //     final SharedPreferences pref =
-        //         await SharedPreferences.getInstance();
-        //     double lifeTimeUse = await WalletDb.instance.lifeTimeUse();
-        //     double lifeTimeEntry = await WalletDb.instance.lifeTimeEntity();
-        //     WalletDb.instance.resetDb();
-        //     pref.setDouble("life_time_use", lifeTimeUse);
-        //     pref.setDouble("life_time_entry", lifeTimeEntry);
-        //   },
-        //   icon: const Icon(CupertinoIcons.arrow_2_circlepath),
-        //   label: const Text("Reset"),
-        // ),
-        const Text(""),
-        // FloatingActionButton.extended(
-        //   onPressed: () {},
-        //   icon: const Icon(Icons.contact_support_outlined),
-        //   label: const Text("Contact"),
-        // ),
-        FloatingActionButton.extended(
-          onPressed: () => WalletDb.instance
-              .exportHistoryToPdf(ScaffoldMessenger.of(context), context),
-          icon: const Icon(CupertinoIcons.arrow_2_circlepath),
-          label: const Text("To pdf"),
-        )
-      ].elementAtOrNull(currentTab),
     );
+  }
+
+  String? _amountValidator(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return "Enter an amount";
+    }
+
+    final parsedAmount = int.tryParse(value);
+    if (parsedAmount == null) {
+      return "Amount must be a whole number";
+    }
+    if (parsedAmount <= 0) {
+      return "Amount must be greater than 0";
+    }
+    if (parsedAmount > WalletDb.maxTransactionAmount) {
+      return "Maximum amount is ${WalletDb.maxTransactionAmount}";
+    }
+
+    return null;
+  }
+
+  void _submitTransaction({required bool isAddition}) {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    final parsedAmount = int.parse(amountController.text.trim());
+    final currentBalance = WalletDb.instance.totalAmount();
+    if (!isAddition && parsedAmount > currentBalance) {
+      _showMessage("Not enough balance for this transaction.");
+      return;
+    }
+
+    final trimmedReason = reasonController.text.trim();
+    final fallbackReason = isAddition ? "Money added" : "Money used";
+    final success = WalletDb.instance.addMoney(
+      Money(
+        isAddition ? parsedAmount.toDouble() : -parsedAmount.toDouble(),
+        reason: trimmedReason.isEmpty ? fallbackReason : trimmedReason,
+      ),
+    );
+
+    if (!success) {
+      _showMessage(
+          "Amount must be between 1 and ${WalletDb.maxTransactionAmount}.");
+      return;
+    }
+
+    amountController.clear();
+    reasonController.clear();
+    FocusScope.of(context).unfocus();
+    _showMessage(isAddition ? "Money added." : "Money used.");
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(message)),
+      );
   }
 }
