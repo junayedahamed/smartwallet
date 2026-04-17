@@ -11,17 +11,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 class WalletDb {
   WalletDb._();
   static final WalletDb instance = WalletDb._();
+  static const int maxTransactionAmount = 200000;
   Box? box;
+
   Future<void> init(String name) async {
     await Hive.initFlutter();
-    box = await Hive.openBox("name");
+    box = await Hive.openBox(name);
   }
 
-  void addMoney(Money value) {
+  bool addMoney(Money value) {
+    if (value.amount.abs() > maxTransactionAmount) {
+      return false;
+    }
     if (totalAmount() + value.amount < 0) {
-      return;
+      return false;
     }
     box?.add(value.toMap());
+    return true;
   }
 
   // useMoney(Money value) {

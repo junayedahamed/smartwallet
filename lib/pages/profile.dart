@@ -16,6 +16,9 @@ class _ProfilePageState extends State<ProfilePage> {
   String emojiResponse() {
     double balance = WalletDb.instance.totalAmount();
     int day = BalanceController.instance.perDayNeed;
+    if (day <= 0) {
+      day = 1;
+    }
 
     if ((balance / day) <= 2) {
       return "assets/twoday.gif";
@@ -32,161 +35,165 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Container(
-              height: 200,
-              width: 200,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                //color: Colors.green,
-              ),
-              child: StreamBuilder(
-                  stream: WalletDb.instance.snapshot(),
-                  builder: (context, snapshot) {
-                    return Image(image: AssetImage(emojiResponse())..evict());
-                  }),
-            ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          const Text(
-            "S U M M A R Y",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(
-            height: 30,
-          ),
-          //life time box
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: Colors.green.shade100,
-                  ),
-                  height: 150,
-                  width: 150,
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Added ",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 30,
-                              color: Colors.black),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return StreamBuilder(
+      stream: WalletDb.instance.snapshot(),
+      builder: (context, snapshot) {
+        return ListView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: [
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    Container(
+                      height: 140,
+                      width: 140,
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: colorScheme.primaryContainer,
+                      ),
+                      child: ClipOval(
+                        child: Image(
+                          image: AssetImage(emojiResponse())..evict(),
+                          fit: BoxFit.cover,
                         ),
-                        Center(
-                          child: FutureBuilder(
-                              future: WalletDb.instance.lifeTimeEntity(),
-                              builder: (context, snapshot) {
-                                return Text(
-                                  (snapshot.data != null)
-                                      ? doubleFormatter(snapshot.data!)
-                                      : "",
-                                  style: const TextStyle(
-                                      fontSize: 25,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black),
-                                );
-                              }),
-                        )
-                      ]),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
+                      "Financial overview",
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      "A quick summary of your wallet health.",
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: Colors.red.shade100,
-                  ),
-                  height: 150,
-                  width: 150,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Usage ",
-                        style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black),
+            ),
+            const SizedBox(height: 16),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final cardWidth = constraints.maxWidth > 520
+                    ? (constraints.maxWidth - 12) / 2
+                    : constraints.maxWidth;
+
+                return Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    SizedBox(
+                      width: cardWidth,
+                      child: _SummaryCard(
+                        icon: Icons.south_west_rounded,
+                        title: "Total Added",
+                        color: colorScheme.primaryContainer,
+                        child: FutureBuilder<double>(
+                          future: WalletDb.instance.lifeTimeEntity(),
+                          builder: (context, snapshot) {
+                            return Text(
+                              (snapshot.data != null)
+                                  ? doubleFormatter(snapshot.data!)
+                                  : "--",
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            );
+                          },
+                        ),
                       ),
-                      FutureBuilder(
+                    ),
+                    SizedBox(
+                      width: cardWidth,
+                      child: _SummaryCard(
+                        icon: Icons.north_east_rounded,
+                        title: "Total Used",
+                        color: colorScheme.errorContainer,
+                        child: FutureBuilder<double>(
                           future: WalletDb.instance.lifeTimeUse(),
                           builder: (context, snapshot) {
                             return Text(
                               (snapshot.data != null)
                                   ? doubleFormatter(snapshot.data!)
-                                  : "",
-                              style: const TextStyle(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black),
+                                  : "--",
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
                             );
-                          }),
-                    ],
-                  ),
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Actions",
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FilledButton.tonalIcon(
+                            onPressed: () => _showConfirmationDialog(context),
+                            icon: const Icon(Icons.delete_sweep_outlined),
+                            label: const Text("Reset all"),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: AnimatedBuilder(
+                            animation: SettingsController.instance,
+                            builder: (context, snapshot) {
+                              final brightness = Theme.of(context).brightness;
+                              final isLight = brightness == Brightness.light;
+
+                              return OutlinedButton.icon(
+                                onPressed: () {
+                                  SettingsController.instance.setThemeMode(
+                                    isLight ? ThemeMode.dark : ThemeMode.light,
+                                  );
+                                },
+                                icon: Icon(
+                                  isLight
+                                      ? Icons.dark_mode_outlined
+                                      : Icons.light_mode_outlined,
+                                ),
+                                label:
+                                    Text(isLight ? "Dark mode" : "Light mode"),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-          const SizedBox(
-            height: 40,
-          ),
-          Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FilledButton(
-                  onPressed: () => _showConfirmationDialog(context),
-                  child: const Text("Reset All"),
-                ),
-
-                // FilledButton(
-                //   onPressed: () async {
-                //     final SharedPreferences pref =
-                //         await SharedPreferences.getInstance();
-                //     WalletDb.instance.resetDb();
-                //     pref.setDouble("life_time_use", 0);
-                //     pref.setDouble("life_time_entry", 0);
-                //   },
-                //   child: const Text("Reset All"),
-                // ),
-                AnimatedBuilder(
-                  animation: SettingsController.instance,
-                  builder: (context, snapshot) {
-                    return IconButton(
-                      onPressed: () {
-                        var brightness = Theme.of(context).brightness;
-                        SettingsController.instance.setThemeMode(
-                            (brightness == Brightness.light)
-                                ? ThemeMode.dark
-                                : ThemeMode.light);
-                      },
-                      icon: (Theme.of(context).brightness == Brightness.light)
-                          ? const Icon(Icons.dark_mode)
-                          : const Icon(Icons.sunny),
-                    );
-                  },
-                ),
-              ],
             ),
-          ),
-          const SizedBox(
-            height: 16,
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 
@@ -222,6 +229,48 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         );
       },
+    );
+  }
+}
+
+class _SummaryCard extends StatelessWidget {
+  const _SummaryCard({
+    required this.icon,
+    required this.title,
+    required this.color,
+    required this.child,
+  });
+
+  final IconData icon;
+  final String title;
+  final Color color;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon),
+            const SizedBox(height: 10),
+            Text(
+              title,
+              style: theme.textTheme.labelLarge,
+            ),
+            const SizedBox(height: 8),
+            child,
+          ],
+        ),
+      ),
     );
   }
 }
