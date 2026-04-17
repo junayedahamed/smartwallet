@@ -1,0 +1,51 @@
+name: Windows Build
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Analyze code
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Build Windows app
+        run: flutter build windows --release
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v3
+        if: success()
+        with:
+          name: windows-app
+          path: build/windows/x64/runner/Release/
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: windows-v1.0.0-${{ github.run_number }}
+          release_name: Windows Release v1.0.0 (Build ${{ github.run_number }})
+          body: Windows desktop app release build ${{ github.run_number }}
+          draft: false
+          prerelease: false
