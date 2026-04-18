@@ -273,7 +273,8 @@ class _HistoryPageState extends State<HistoryPage> {
                 icon: HugeIcon(
                     icon: HugeIcons.strokeRoundedCalendar01,
                     color: Theme.of(context).colorScheme.onPrimary,
-                    size: 20),
+                    size: 20,
+                    strokeWidth: 2.0),
                 label: _selectedDate == null
                     ? Text(L10n.tr(context, "pick_date"))
                     : Text(DateFormat("dd MMM").format(_selectedDate!)),
@@ -373,6 +374,7 @@ class HistoryListTile extends StatelessWidget {
                     : HugeIcons.strokeRoundedArrowDown01,
                 color: iconColor,
                 size: 20,
+                strokeWidth: 2.0,
               ),
             ),
           ),

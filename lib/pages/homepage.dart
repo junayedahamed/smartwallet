@@ -50,6 +50,7 @@ class _HomePageState extends State<HomePage> {
                 icon: HugeIcons.strokeRoundedPdf01,
                 color: Colors.white,
                 size: 22,
+                strokeWidth: 2.0,
               ),
               label: const Text("Export PDF"),
             )
@@ -135,6 +136,7 @@ class _HomePageState extends State<HomePage> {
                                     color: Theme.of(context)
                                         .colorScheme
                                         .onErrorContainer,
+                                    strokeWidth: 2.0,
                                     size: 24),
                                 label: Text(
                                   L10n.tr(context, "use"),
@@ -165,7 +167,8 @@ class _HomePageState extends State<HomePage> {
                                     icon: HugeIcons.strokeRoundedPlusSign,
                                     color:
                                         Theme.of(context).colorScheme.onPrimary,
-                                    size: 24),
+                                    size: 24,
+                                    strokeWidth: 2.0),
                                 label: Text(
                                   L10n.tr(context, "add"),
                                   style: const TextStyle(
@@ -281,6 +284,7 @@ class _HomePageState extends State<HomePage> {
                       icon: HugeIcons.strokeRoundedWallet01,
                       color: colorScheme.onPrimaryContainer,
                       size: 28,
+                      strokeWidth: 2.0,
                     ),
                   ],
                 ),
@@ -313,7 +317,8 @@ class _HomePageState extends State<HomePage> {
                       HugeIcon(
                           icon: HugeIcons.strokeRoundedClock01,
                           color: colorScheme.onPrimaryContainer,
-                          size: 18),
+                          size: 18,
+                          strokeWidth: 2.0),
                       const SizedBox(width: 8),
                       Text(
                         L10n.tr(context, "est_days_remaining",
@@ -449,6 +454,7 @@ class _HomePageState extends State<HomePage> {
                       HugeIcon(
                         icon: items[i].$1,
                         size: 22,
+                        strokeWidth: 2.0,
                         color: selected
                             ? colorScheme.onPrimaryContainer
                             : colorScheme.onSurfaceVariant,
