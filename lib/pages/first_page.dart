@@ -69,53 +69,35 @@ class _FirstPageState extends State<FirstPage> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 20),
-                        // Language Dropdown
-                        AnimatedBuilder(
-                          animation: SettingsController.instance,
-                          builder: (context, _) {
-                            return DropdownButtonFormField<String>(
-                              key: ValueKey(SettingsController.instance.locale),
-                              initialValue: SettingsController.instance.locale,
-                              decoration: InputDecoration(
-                                labelText: L10n.tr(context, "language"),
-                                prefixIcon: const Icon(Icons.language_rounded),
-                              ),
-                              items: const [
-                                DropdownMenuItem(value: "en", child: Text("English")),
-                                DropdownMenuItem(value: "bn", child: Text("বাংলা")),
-                              ],
-                              onChanged: (val) {
-                                if (val != null) SettingsController.instance.setLocale(val);
-                                setState(() {
-                                  // Update validation strings locally by resetting the form validation
-                                  _formKey.currentState?.validate();
-                                });
-                              },
-                            );
-                          }
-                        ),
-                        const SizedBox(height: 12),
                         // Currency Dropdown
                         AnimatedBuilder(
-                          animation: SettingsController.instance,
-                          builder: (context, _) {
-                            return DropdownButtonFormField<String>(
-                              key: ValueKey(SettingsController.instance.currency),
-                              initialValue: SettingsController.instance.currency,
-                              decoration: InputDecoration(
-                                labelText: L10n.tr(context, "currency"),
-                                prefixIcon: const Icon(Icons.monetization_on_rounded),
-                              ),
-                              items: const [
-                                DropdownMenuItem(value: "৳", child: Text("BDT (৳) - Taka")),
-                                DropdownMenuItem(value: "\$", child: Text("USD (\$) - Dollar")),
-                              ],
-                              onChanged: (val) {
-                                if (val != null) SettingsController.instance.setCurrency(val);
-                              },
-                            );
-                          }
-                        ),
+                            animation: SettingsController.instance,
+                            builder: (context, _) {
+                              return DropdownButtonFormField<String>(
+                                key: ValueKey(
+                                    SettingsController.instance.currency),
+                                initialValue:
+                                    SettingsController.instance.currency,
+                                decoration: InputDecoration(
+                                  labelText: L10n.tr(context, "currency"),
+                                  prefixIcon:
+                                      const Icon(Icons.monetization_on_rounded),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(
+                                      value: "৳",
+                                      child: Text("BDT (৳) - Taka")),
+                                  DropdownMenuItem(
+                                      value: "\$",
+                                      child: Text("USD (\$) - Dollar")),
+                                ],
+                                onChanged: (val) {
+                                  if (val != null)
+                                    SettingsController.instance
+                                        .setCurrency(val);
+                                },
+                              );
+                            }),
                         const SizedBox(height: 12),
                         TextFormField(
                           controller: balanceController,
@@ -127,8 +109,10 @@ class _FirstPageState extends State<FirstPage> {
                           validator: _validateBalance,
                           decoration: InputDecoration(
                             labelText: L10n.tr(context, "initial_balance"),
-                            helperText: "${L10n.tr(context, 'whole_number_max')} ${WalletDb.maxTransactionAmount}",
-                            prefixIcon: const Icon(Icons.account_balance_wallet),
+                            helperText:
+                                "${L10n.tr(context, 'whole_number_max')} ${WalletDb.maxTransactionAmount}",
+                            prefixIcon:
+                                const Icon(Icons.account_balance_wallet),
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -143,7 +127,8 @@ class _FirstPageState extends State<FirstPage> {
                           decoration: InputDecoration(
                             labelText: L10n.tr(context, "daily_need"),
                             helperText: L10n.tr(context, "greater_than_0"),
-                            prefixIcon: const Icon(Icons.calendar_today_rounded),
+                            prefixIcon:
+                                const Icon(Icons.calendar_today_rounded),
                           ),
                         ),
                         const SizedBox(height: 20),
