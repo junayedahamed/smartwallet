@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:smartwallet/database/database.dart';
 import 'package:smartwallet/pages/balance_controller.dart';
 import 'package:smartwallet/pages/history.dart';
@@ -41,32 +40,7 @@ class _HomePageState extends State<HomePage> {
           const ProfilePage(),
         ],
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-        child: GNav(
-          selectedIndex: currentTab,
-          gap: 8,
-          onTabChange: (value) {
-            setState(() {
-              currentTab = value;
-            });
-          },
-          tabs: [
-            GButton(
-              icon: Icons.home_rounded,
-              text: L10n.tr(context, "home"),
-            ),
-            GButton(
-              icon: Icons.history,
-              text: L10n.tr(context, "history"),
-            ),
-            GButton(
-              icon: Icons.person_rounded,
-              text: L10n.tr(context, "profile"),
-            ),
-          ],
-        ),
-      ),
+      bottomNavigationBar: _buildFloatingNavBar(context),
       floatingActionButton: (currentTab == 1)
           ? FloatingActionButton.extended(
               onPressed: () => WalletDb.instance
@@ -151,16 +125,23 @@ class _HomePageState extends State<HomePage> {
                                 onPressed: () => _submitTransaction(
                                   isAddition: false,
                                 ),
-                                icon: const Icon(Icons.remove_circle_rounded, size: 24),
+                                icon: const Icon(Icons.remove_circle_rounded,
+                                    size: 24),
                                 label: Text(
                                   L10n.tr(context, "use"),
-                                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 18),
                                 ),
                                 style: FilledButton.styleFrom(
-                                  backgroundColor: theme.colorScheme.errorContainer,
-                                  foregroundColor: theme.colorScheme.onErrorContainer,
-                                  padding: const EdgeInsets.symmetric(vertical: 24),
-                                  shape: const StadiumBorder(), // Perfect expressive pill shape
+                                  backgroundColor:
+                                      theme.colorScheme.errorContainer,
+                                  foregroundColor:
+                                      theme.colorScheme.onErrorContainer,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 24),
+                                  shape:
+                                      const StadiumBorder(), // Perfect expressive pill shape
                                   elevation: 0,
                                 ),
                               ),
@@ -171,16 +152,21 @@ class _HomePageState extends State<HomePage> {
                                 onPressed: () => _submitTransaction(
                                   isAddition: true,
                                 ),
-                                icon: const Icon(Icons.add_circle_rounded, size: 24),
+                                icon: const Icon(Icons.add_circle_rounded,
+                                    size: 24),
                                 label: Text(
                                   L10n.tr(context, "add"),
-                                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 18),
                                 ),
                                 style: FilledButton.styleFrom(
                                   backgroundColor: theme.colorScheme.primary,
                                   foregroundColor: theme.colorScheme.onPrimary,
-                                  padding: const EdgeInsets.symmetric(vertical: 24),
-                                  shape: const StadiumBorder(), // Perfect expressive pill shape
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 24),
+                                  shape:
+                                      const StadiumBorder(), // Perfect expressive pill shape
                                   elevation: 0,
                                 ),
                               ),
@@ -245,22 +231,25 @@ class _HomePageState extends State<HomePage> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer, // Solid expressive color, no gradient
+        color:
+            colorScheme.primaryContainer, // Solid expressive color, no gradient
         borderRadius: BorderRadius.circular(44), // Massive expressive squircle
       ),
       child: Stack(
         children: [
-          // Background Decorative Circle in expressive soft transparent 
+          // Background Decorative Circle in expressive soft transparent
           Positioned(
             right: -20,
             top: -40,
             child: CircleAvatar(
               radius: 90,
-              backgroundColor: colorScheme.onPrimaryContainer.withValues(alpha: 0.05),
+              backgroundColor:
+                  colorScheme.onPrimaryContainer.withValues(alpha: 0.05),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 36.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 32.0, vertical: 36.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -270,14 +259,15 @@ class _HomePageState extends State<HomePage> {
                     Text(
                       L10n.tr(context, "wallet_balance"),
                       style: theme.textTheme.titleMedium?.copyWith(
-                        color: colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+                        color: colorScheme.onPrimaryContainer
+                            .withValues(alpha: 0.8),
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
                       ),
                     ),
                     Icon(
-                      Icons.account_balance_wallet_rounded, 
-                      color: colorScheme.onPrimaryContainer, 
+                      Icons.account_balance_wallet_rounded,
+                      color: colorScheme.onPrimaryContainer,
                       size: 28,
                     ),
                   ],
@@ -297,18 +287,23 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const SizedBox(height: 24),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                   decoration: BoxDecoration(
-                    color: colorScheme.onPrimaryContainer.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(24), // Expressive inner pill
+                    color:
+                        colorScheme.onPrimaryContainer.withValues(alpha: 0.1),
+                    borderRadius:
+                        BorderRadius.circular(24), // Expressive inner pill
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.timer_rounded, color: colorScheme.onPrimaryContainer, size: 18),
+                      Icon(Icons.timer_rounded,
+                          color: colorScheme.onPrimaryContainer, size: 18),
                       const SizedBox(width: 8),
                       Text(
-                        L10n.tr(context, "est_days_remaining", {"days": daysLeft.toString()}),
+                        L10n.tr(context, "est_days_remaining",
+                            {"days": daysLeft.toString()}),
                         style: theme.textTheme.titleSmall?.copyWith(
                           color: colorScheme.onPrimaryContainer,
                           fontWeight: FontWeight.bold,
@@ -357,7 +352,9 @@ class _HomePageState extends State<HomePage> {
     }
 
     final trimmedReason = reasonController.text.trim();
-    final fallbackReason = isAddition ? L10n.tr(context, "money_added") : L10n.tr(context, "money_used");
+    final fallbackReason = isAddition
+        ? L10n.tr(context, "money_added")
+        : L10n.tr(context, "money_used");
     final success = WalletDb.instance.addMoney(
       Money(
         isAddition ? parsedAmount.toDouble() : -parsedAmount.toDouble(),
@@ -374,7 +371,86 @@ class _HomePageState extends State<HomePage> {
     amountController.clear();
     reasonController.clear();
     FocusScope.of(context).unfocus();
-    _showMessage(isAddition ? L10n.tr(context, "money_added") : L10n.tr(context, "money_used"));
+    _showMessage(isAddition
+        ? L10n.tr(context, "money_added")
+        : L10n.tr(context, "money_used"));
+  }
+
+  Widget _buildFloatingNavBar(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final items = [
+      (Icons.home_rounded, Icons.home_rounded, L10n.tr(context, "home")),
+      (
+        Icons.history_rounded,
+        Icons.history_rounded,
+        L10n.tr(context, "history")
+      ),
+      (Icons.person_rounded, Icons.person_rounded, L10n.tr(context, "profile")),
+    ];
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 12),
+      child: Container(
+        height: 56,
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(32),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.shadow.withValues(alpha: 0.10),
+              blurRadius: 24,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: List.generate(items.length, (i) {
+            final selected = currentTab == i;
+            return Expanded(
+              child: GestureDetector(
+                onTap: () => setState(() => currentTab = i),
+                behavior: HitTestBehavior.opaque,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 260),
+                  curve: Curves.easeInOutCubicEmphasized,
+                  margin: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: selected
+                        ? colorScheme.primaryContainer
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(
+                        items[i].$1,
+                        size: 22,
+                        color: selected
+                            ? colorScheme.onPrimaryContainer
+                            : colorScheme.onSurfaceVariant,
+                      ),
+                      if (selected) ...[
+                        const SizedBox(width: 8),
+                        Text(
+                          items[i].$3,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
+    );
   }
 
   void _showMessage(String message) {
