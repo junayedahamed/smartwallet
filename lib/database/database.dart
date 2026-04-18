@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
@@ -164,12 +165,15 @@ class WalletDb {
         );
       },
     ));
-    // permissions
+    // permissions — legacy storage permission only needed below Android 13 (API 33)
     if (Platform.isAndroid) {
-      if (!(await Permission.storage.isGranted)) {
-        var status = await Permission.storage.request();
-        if (!status.isGranted) {
-          return;
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      if (androidInfo.version.sdkInt < 33) {
+        if (!(await Permission.storage.isGranted)) {
+          var status = await Permission.storage.request();
+          if (!status.isGranted) {
+            return;
+          }
         }
       }
     }
@@ -177,12 +181,12 @@ class WalletDb {
     try {
       if (Platform.isMacOS || Platform.isWindows) {
         final fileName = DateTime.now().microsecondsSinceEpoch.toString();
-        path = await FilePicker.platform.saveFile(
+        path = await FilePicker.saveFile(
           allowedExtensions: ["pdf"],
           fileName: "history$fileName.pdf",
         );
       } else {
-        path = await FilePicker.platform.getDirectoryPath();
+        path = await FilePicker.getDirectoryPath();
         // ignore: use_build_context_synchronously
         if (!context.mounted) return;
         String? fileName = await showDialog<String>(
