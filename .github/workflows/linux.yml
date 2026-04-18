@@ -9,9 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      actions: read
 
     steps:
       - uses: actions/checkout@v3
@@ -45,15 +42,3 @@ jobs:
         with:
           name: linux-app
           path: build/linux/x64/release/bundle/
-
-      - name: Create Release
-        uses: actions/create-release@v1
-        if: success()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: linux-v1.0.0-${{ github.run_number }}
-          release_name: Linux Release v1.0.0 (Build ${{ github.run_number }})
-          body: Linux desktop app release build ${{ github.run_number }}
-          draft: false
-          prerelease: false
