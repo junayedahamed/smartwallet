@@ -44,11 +44,16 @@ jobs:
         run: flutter pub get
       - name: Build Linux app
         run: flutter build linux --release
-      - name: Upload Linux artifacts
+      - name: Package Linux app
+        run: |
+          cd build/linux/x64/release/bundle
+          tar -czf ../../../../../../smartwallet-linux-x64.tar.gz .
+          cd ../../../../..
+      - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-app
-          path: build/linux/x64/release/bundle/
+          path: smartwallet-linux-x64.tar.gz
           retention-days: 1
 
   build-windows:
@@ -64,11 +69,17 @@ jobs:
         run: flutter pub get
       - name: Build Windows app
         run: flutter build windows --release
-      - name: Upload Windows artifacts
+      - name: Package Windows app
+        shell: pwsh
+        run: |
+          cd build/windows/x64/runner/Release
+          Compress-Archive -Path . -DestinationPath ../../../../../../smartwallet-windows-x64.zip
+          cd ../../../../..
+      - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-app
-          path: build/windows/x64/runner/Release/
+          path: smartwallet-windows-x64.zip
           retention-days: 1
 
   build-ios:
@@ -84,11 +95,16 @@ jobs:
         run: flutter pub get
       - name: Build iOS app
         run: flutter build ios --release --no-codesign
-      - name: Upload iOS artifacts
+      - name: Package iOS app
+        run: |
+          cd build/ios/iphoneos
+          zip -r ../../../smartwallet-ios.zip Runner.app
+          cd ../../..
+      - name: Upload iOS artifact
         uses: actions/upload-artifact@v4
         with:
           name: ios-app
-          path: build/ios/iphoneos/
+          path: smartwallet-ios.zip
           retention-days: 1
 
   release:
@@ -122,8 +138,8 @@ jobs:
           prerelease: false
           files: |
             artifacts/android-apk/*.apk
-            artifacts/ios-app/**
-            artifacts/linux-app/**
-            artifacts/windows-app/**
+            artifacts/ios-app/*.zip
+            artifacts/linux-app/*.tar.gz
+            artifacts/windows-app/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
