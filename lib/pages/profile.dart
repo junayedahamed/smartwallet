@@ -224,40 +224,54 @@ class _ProfilePageState extends State<ProfilePage> {
                           );
                         }),
                     const SizedBox(height: 16),
-                    FilledButton.tonalIcon(
-                      onPressed: () => _showConfirmationDialog(context),
-                      icon: const Icon(Icons.delete_sweep_outlined),
-                      label: Text(L10n.tr(context, "reset_all")),
-                    ),
-                    const SizedBox(height: 12),
-                    AnimatedBuilder(
-                      animation: SettingsController.instance,
-                      builder: (context, _) {
-                        return DropdownButtonFormField<ThemeMode>(
-                          key: ValueKey(SettingsController.instance.themeMode),
-                          initialValue: SettingsController.instance.themeMode,
-                          decoration: InputDecoration(
-                            isDense: true,
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 12),
-                            prefixIcon: const Icon(
-                                Icons.brightness_auto_outlined,
-                                size: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FilledButton.tonalIcon(
+                            onPressed: () => _showConfirmationDialog(context),
+                            icon: const Icon(Icons.delete_sweep_outlined),
+                            label: Text(L10n.tr(context, "reset_all")),
                           ),
-                          items: const [
-                            DropdownMenuItem(
-                                value: ThemeMode.system, child: Text("System")),
-                            DropdownMenuItem(
-                                value: ThemeMode.light, child: Text("Light")),
-                            DropdownMenuItem(
-                                value: ThemeMode.dark, child: Text("Dark")),
-                          ],
-                          onChanged: (val) {
-                            if (val != null)
-                              SettingsController.instance.setThemeMode(val);
-                          },
-                        );
-                      },
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: AnimatedBuilder(
+                            animation: SettingsController.instance,
+                            builder: (context, _) {
+                              return DropdownButtonFormField<ThemeMode>(
+                                key: ValueKey(
+                                    SettingsController.instance.themeMode),
+                                initialValue:
+                                    SettingsController.instance.themeMode,
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 12),
+                                  prefixIcon: const Icon(
+                                      Icons.brightness_auto_outlined,
+                                      size: 20),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(
+                                      value: ThemeMode.system,
+                                      child: Text("System")),
+                                  DropdownMenuItem(
+                                      value: ThemeMode.light,
+                                      child: Text("Light")),
+                                  DropdownMenuItem(
+                                      value: ThemeMode.dark,
+                                      child: Text("Dark")),
+                                ],
+                                onChanged: (val) {
+                                  if (val != null)
+                                    SettingsController.instance
+                                        .setThemeMode(val);
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
