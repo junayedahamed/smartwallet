@@ -33,12 +33,12 @@ class MyApp extends StatelessWidget {
     final baseTheme = ThemeData(
       brightness: brightness,
       useMaterial3: true,
-      colorSchemeSeed: Colors.green,
+      colorSchemeSeed: Colors.greenAccent.shade400, // Expressive seed
     );
     final colorScheme = baseTheme.colorScheme;
 
     return baseTheme.copyWith(
-      textTheme: GoogleFonts.dmSansTextTheme(baseTheme.textTheme),
+      textTheme: GoogleFonts.outfitTextTheme(baseTheme.textTheme), // Bold, modern font
       scaffoldBackgroundColor: colorScheme.surface,
       appBarTheme: AppBarTheme(
         centerTitle: true,
@@ -46,46 +46,54 @@ class MyApp extends StatelessWidget {
         scrolledUnderElevation: 0,
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
+        titleTextStyle: GoogleFonts.outfit(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: colorScheme.onSurface,
+        ),
       ),
       cardTheme: CardThemeData(
         elevation: 0,
-        color: colorScheme.surface,
+        color: colorScheme.surfaceContainerLow,
         margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)), // Expressive radius
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: colorScheme.surface.withValues(alpha: 0.85),
+        fillColor: colorScheme.surfaceContainerHigh.withValues(alpha: 0.7),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: colorScheme.outlineVariant),
+          borderRadius: BorderRadius.circular(22),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: colorScheme.outlineVariant),
+          borderRadius: BorderRadius.circular(22),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+          borderRadius: BorderRadius.circular(22),
+          borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        height: 72,
+        height: 80,
         indicatorColor: colorScheme.primaryContainer,
         backgroundColor: colorScheme.surface,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          minimumSize: const Size(0, 52),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          minimumSize: const Size(0, 56),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+          textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          minimumSize: const Size(0, 52),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          minimumSize: const Size(0, 56),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+          side: BorderSide(color: colorScheme.outline, width: 1.5),
+          textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
       ),
     );

@@ -146,12 +146,22 @@ class _HomePageState extends State<HomePage> {
                         Row(
                           children: [
                             Expanded(
-                              child: OutlinedButton.icon(
+                              child: FilledButton.icon(
                                 onPressed: () => _submitTransaction(
                                   isAddition: false,
                                 ),
-                                icon: const Icon(Icons.remove_rounded),
-                                label: const Text("Use Money"),
+                                icon: const Icon(Icons.remove_circle_rounded, size: 24),
+                                label: const Text(
+                                  "Use",
+                                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
+                                ),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: theme.colorScheme.errorContainer,
+                                  foregroundColor: theme.colorScheme.onErrorContainer,
+                                  padding: const EdgeInsets.symmetric(vertical: 24),
+                                  shape: const StadiumBorder(), // Perfect expressive pill shape
+                                  elevation: 0,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -160,8 +170,18 @@ class _HomePageState extends State<HomePage> {
                                 onPressed: () => _submitTransaction(
                                   isAddition: true,
                                 ),
-                                icon: const Icon(Icons.add_rounded),
-                                label: const Text("Add Money"),
+                                icon: const Icon(Icons.add_circle_rounded, size: 24),
+                                label: const Text(
+                                  "Add",
+                                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
+                                ),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: theme.colorScheme.primary,
+                                  foregroundColor: theme.colorScheme.onPrimary,
+                                  padding: const EdgeInsets.symmetric(vertical: 24),
+                                  shape: const StadiumBorder(), // Perfect expressive pill shape
+                                  elevation: 0,
+                                ),
                               ),
                             ),
                           ],
@@ -221,50 +241,85 @@ class _HomePageState extends State<HomePage> {
     final balance = WalletDb.instance.totalAmount();
     final daysLeft = BalanceController.instance.dayLeft();
 
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              colorScheme.primaryContainer,
-              colorScheme.surface,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer, // Solid expressive color, no gradient
+        borderRadius: BorderRadius.circular(44), // Massive expressive squircle
+      ),
+      child: Stack(
+        children: [
+          // Background Decorative Circle in expressive soft transparent 
+          Positioned(
+            right: -20,
+            top: -40,
+            child: CircleAvatar(
+              radius: 90,
+              backgroundColor: colorScheme.onPrimaryContainer.withValues(alpha: 0.05),
+            ),
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Current balance",
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 8),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                doubleFormatter(balance),
-                style: theme.textTheme.displaySmall?.copyWith(
-                  color: colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.w700,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 36.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Wallet Balance",
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    Icon(
+                      Icons.account_balance_wallet_rounded, 
+                      color: colorScheme.onPrimaryContainer, 
+                      size: 28,
+                    ),
+                  ],
                 ),
-              ),
+                const SizedBox(height: 16),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    doubleFormatter(balance),
+                    style: theme.textTheme.displayMedium?.copyWith(
+                      color: colorScheme.onPrimaryContainer,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -1.5,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: colorScheme.onPrimaryContainer.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(24), // Expressive inner pill
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.timer_rounded, color: colorScheme.onPrimaryContainer, size: 18),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Est. $daysLeft days remaining",
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          color: colorScheme.onPrimaryContainer,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              "Estimated days left: $daysLeft",
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
