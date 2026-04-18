@@ -1,12 +1,10 @@
 import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:hive_flutter/adapters.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WalletDb {
@@ -165,21 +163,9 @@ class WalletDb {
         );
       },
     ));
-    // permissions — legacy storage permission only needed below Android 13 (API 33)
-    if (Platform.isAndroid) {
-      final androidInfo = await DeviceInfoPlugin().androidInfo;
-      if (androidInfo.version.sdkInt < 33) {
-        if (!(await Permission.storage.isGranted)) {
-          var status = await Permission.storage.request();
-          if (!status.isGranted) {
-            return;
-          }
-        }
-      }
-    }
     String? path;
     try {
-      if (Platform.isMacOS || Platform.isWindows) {
+      if (Platform.isMacOS || Platform.isWindows || Platform.isAndroid) {
         final fileName = DateTime.now().microsecondsSinceEpoch.toString();
         path = await FilePicker.saveFile(
           allowedExtensions: ["pdf"],
