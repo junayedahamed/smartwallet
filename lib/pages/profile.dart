@@ -182,9 +182,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                             value: "bn", child: Text("বাংলা")),
                                       ],
                                       onChanged: (val) {
-                                        if (val != null)
+                                        if (val != null) {
                                           SettingsController.instance
                                               .setLocale(val);
+                                        }
                                       },
                                     ),
                                   ),
@@ -212,9 +213,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                             child: Text("USD (\$)")),
                                       ],
                                       onChanged: (val) {
-                                        if (val != null)
+                                        if (val != null) {
                                           SettingsController.instance
                                               .setCurrency(val);
+                                        }
                                       },
                                     ),
                                   ),
@@ -263,9 +265,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                       child: Text("Dark")),
                                 ],
                                 onChanged: (val) {
-                                  if (val != null)
+                                  if (val != null) {
                                     SettingsController.instance
                                         .setThemeMode(val);
+                                  }
                                 },
                               );
                             },

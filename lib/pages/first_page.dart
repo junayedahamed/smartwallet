@@ -92,9 +92,10 @@ class _FirstPageState extends State<FirstPage> {
                                       child: Text("USD (\$) - Dollar")),
                                 ],
                                 onChanged: (val) {
-                                  if (val != null)
+                                  if (val != null) {
                                     SettingsController.instance
                                         .setCurrency(val);
+                                  }
                                 },
                               );
                             }),
