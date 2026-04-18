@@ -20,12 +20,12 @@ jobs:
         run: flutter pub get
       - name: Decode Keystore
         run: |
-          echo "${{ secrets.STORE_FILE }}" | base64 --decode > android/app/upload-keystore.jks
+          echo "${{ secrets.SIGNING_KEY }}" | base64 --decode > android/app/upload-keystore.jks
           ls -la android/app/upload-keystore.jks
       - name: Build Android APK
         run: flutter build apk --release --split-per-abi
         env:
-          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
       - name: Upload Android artifacts
