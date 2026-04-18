@@ -21,6 +21,7 @@ jobs:
       - name: Decode Keystore
         run: |
           echo "${{ secrets.STORE_FILE }}" | base64 --decode > android/app/upload-keystore.jks
+          ls -la android/app/upload-keystore.jks
       - name: Build Android APK
         run: flutter build apk --release --split-per-abi
         env:
