@@ -1,4 +1,5 @@
 String doubleFormatter(double value) {
-  String text = value.toStringAsFixed(2);
-  return text;
+  final sign = value < 0 ? "-" : "";
+  final text = value.abs().toStringAsFixed(2);
+  return "$sign\$$text";
 }

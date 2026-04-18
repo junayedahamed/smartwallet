@@ -56,6 +56,7 @@ class _HistoryPageState extends State<HistoryPage> {
   Widget build(BuildContext context) {
     final filteredMoneys = _getFilteredMoneys();
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     if (WalletDb.instance.getMoneyList().isEmpty) {
       return Center(
@@ -68,6 +69,19 @@ class _HistoryPageState extends State<HistoryPage> {
         ),
       );
     }
+
+    // Grouping logic
+    final Map<String, List<Money>> groupedMoneys = {};
+    for (var money in filteredMoneys) {
+      final dateKey = DateFormat("yyyy-MM-dd").format(money.dateTime);
+      if (!groupedMoneys.containsKey(dateKey)) {
+        groupedMoneys[dateKey] = [];
+      }
+      groupedMoneys[dateKey]!.add(money);
+    }
+
+    final sortedDates = groupedMoneys.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
 
     return CustomScrollView(
       slivers: [
@@ -118,25 +132,73 @@ class _HistoryPageState extends State<HistoryPage> {
             ),
           )
         else
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final reversedList =
-                    WalletDb.instance.getMoneyList().reversed.toList();
-                final transactionIndex =
-                    reversedList.indexOf(filteredMoneys[index]);
-                return HistoryListTile(
-                  money: filteredMoneys[index],
-                  balance: doubleFormatter(
-                    WalletDb.instance.balanceAtIndex(transactionIndex),
+          for (var dateKey in sortedDates) ...[
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                );
-              },
-              childCount: filteredMoneys.length,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _formatHeaderDate(dateKey),
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      Text(
+                        "Total: ${doubleFormatter(groupedMoneys[dateKey]!.fold(0, (sum, m) => sum + m.amount))}",
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final money = groupedMoneys[dateKey]![index];
+                  final allReversed = WalletDb.instance.getMoneyList().reversed.toList();
+                  final transactionIndex = allReversed.indexOf(money);
+                  
+                  return HistoryListTile(
+                    money: money,
+                    balance: doubleFormatter(
+                      WalletDb.instance.balanceAtIndex(allReversed.length - transactionIndex - 1),
+                    ),
+                  );
+                },
+                childCount: groupedMoneys[dateKey]!.length,
+              ),
+            ),
+          ],
       ],
     );
+  }
+
+  String _formatHeaderDate(String dateKey) {
+    final date = DateTime.parse(dateKey);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final transactionDate = DateTime(date.year, date.month, date.day);
+
+    if (transactionDate == today) {
+      return "Today";
+    } else if (transactionDate == yesterday) {
+      return "Yesterday";
+    } else {
+      return DateFormat("MMMM dd, yyyy").format(date);
+    }
   }
 
   Widget _buildFilterBar(BuildContext context) {
@@ -273,56 +335,101 @@ class HistoryListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final amountColor =
-        (money.amount >= 0) ? colorScheme.primary : colorScheme.error;
+    final isIncome = money.amount >= 0;
+    
+    final iconColor = isIncome ? Colors.green : Colors.red;
+    final bgColor = iconColor.withValues(alpha: 0.1);
+    final amountColor = isIncome ? Colors.green : Colors.red;
+
     final reason = (money.reason == null || money.reason!.trim().isEmpty)
-        ? "No reason"
+        ? (isIncome ? "Income" : "Expense")
         : money.reason!.trim();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: BorderSide(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.9),
-            width: 1.1,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Row(
+        children: [
+          // Circular Icon Container
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: bgColor,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Icon(
+                isIncome ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
+                color: iconColor,
+                size: 20,
+              ),
+            ),
           ),
-        ),
-        child: ListTile(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          title: Text(
-            reason,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.titleSmall,
+          const SizedBox(width: 16),
+          // Title and Subtitle
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  reason,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  _getRelativeDate(money.dateTime),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
           ),
-          subtitle: Text(
-            "${DateFormat("dd MMM yyyy • hh:mm a").format(money.dateTime)}\nBalance: ${balance ?? "--"}",
-            style: theme.textTheme.bodySmall,
-          ),
-          isThreeLine: true,
-          trailing: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          // Amount
+          Column(
             crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                (money.amount >= 0) ? "Added" : "Spent",
-                style: theme.textTheme.labelSmall,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                doubleFormatter(money.amount),
+                "${isIncome ? '+' : ''}${doubleFormatter(money.amount)}",
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: amountColor,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
               ),
+              if (balance != null)
+                Text(
+                  "Bal: $balance",
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                    fontSize: 10,
+                  ),
+                ),
             ],
           ),
-        ),
+        ],
       ),
     );
+  }
+
+  String _getRelativeDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final transactionDate = DateTime(date.year, date.month, date.day);
+
+    if (transactionDate == today) {
+      return "Today";
+    } else if (transactionDate == yesterday) {
+      return "Yesterday";
+    } else {
+      return DateFormat("dd MMM yyyy").format(date);
+    }
   }
 }
