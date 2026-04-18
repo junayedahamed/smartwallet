@@ -76,12 +76,12 @@ jobs:
         run: flutter build windows --release
       - name: Package Windows app
         shell: pwsh
-        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath smartwallet-windows-x64.zip
+        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath smartwallet-windows-x64-portable.zip
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-app
-          path: smartwallet-windows-x64.zip
+          path: smartwallet-windows-x64-portable.zip
           retention-days: 1
 
   build-ios:
