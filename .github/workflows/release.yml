@@ -109,8 +109,30 @@ jobs:
           path: smartwallet-ios.zip
           retention-days: 1
 
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.x"
+          channel: "stable"
+      - name: Get dependencies
+        run: flutter pub get
+      - name: Build macOS app
+        run: flutter build macos --release
+      - name: Package macOS app
+        run: zip -r smartwallet-macos.zip build/macos/Build/Products/Release/smartwallet.app
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-app
+          path: smartwallet-macos.zip
+          retention-days: 1
+
   release:
-    needs: [build-android, build-linux, build-windows, build-ios]
+    needs: [build-android, build-linux, build-windows, build-ios, build-macos]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -136,6 +158,7 @@ jobs:
             - iOS app
             - Linux desktop app
             - Windows desktop app
+            - macOS desktop app
           draft: false
           prerelease: false
           files: |
@@ -143,5 +166,6 @@ jobs:
             artifacts/ios-app/*.zip
             artifacts/linux-app/*.tar.gz
             artifacts/windows-app/*.zip
+            artifacts/macos-app/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
