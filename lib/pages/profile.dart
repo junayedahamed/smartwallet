@@ -233,28 +233,28 @@ class _ProfilePageState extends State<ProfilePage> {
                     AnimatedBuilder(
                       animation: SettingsController.instance,
                       builder: (context, _) {
-                        return SegmentedButton<ThemeMode>(
-                          showSelectedIcon: false,
-                          segments: const [
-                            ButtonSegment(
-                              value: ThemeMode.light,
-                              icon: Icon(Icons.light_mode_outlined),
-                              label: Text("Light"),
-                            ),
-                            ButtonSegment(
-                              value: ThemeMode.system,
-                              icon: Icon(Icons.brightness_auto_outlined),
-                              label: Text("System"),
-                            ),
-                            ButtonSegment(
-                              value: ThemeMode.dark,
-                              icon: Icon(Icons.dark_mode_outlined),
-                              label: Text("Dark"),
-                            ),
+                        return DropdownButtonFormField<ThemeMode>(
+                          key: ValueKey(SettingsController.instance.themeMode),
+                          initialValue: SettingsController.instance.themeMode,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 12),
+                            prefixIcon: const Icon(
+                                Icons.brightness_auto_outlined,
+                                size: 20),
+                          ),
+                          items: const [
+                            DropdownMenuItem(
+                                value: ThemeMode.system, child: Text("System")),
+                            DropdownMenuItem(
+                                value: ThemeMode.light, child: Text("Light")),
+                            DropdownMenuItem(
+                                value: ThemeMode.dark, child: Text("Dark")),
                           ],
-                          selected: {SettingsController.instance.themeMode},
-                          onSelectionChanged: (val) {
-                            SettingsController.instance.setThemeMode(val.first);
+                          onChanged: (val) {
+                            if (val != null)
+                              SettingsController.instance.setThemeMode(val);
                           },
                         );
                       },
