@@ -388,9 +388,9 @@ class _HomePageState extends State<HomePage> {
       (Icons.person_rounded, Icons.person_rounded, L10n.tr(context, "profile")),
     ];
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 12),
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
       child: Container(
-        height: 56,
+        height: 68,
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(32),
