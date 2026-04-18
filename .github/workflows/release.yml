@@ -139,6 +139,11 @@ jobs:
       actions: read
     steps:
       - uses: actions/checkout@v4
+      - name: Get version from pubspec
+        id: version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | tr '+' '-')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -148,17 +153,29 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         with:
-          tag_name: v1.0.0-${{ github.run_number }}
-          name: SmartWallet v1.0.0 (Build ${{ github.run_number }})
+          tag_name: v${{ steps.version.outputs.version }}
+          name: SmartWallet v${{ steps.version.outputs.version }}
           body: |
-            Multi-platform release for SmartWallet
+            ## SmartWallet v${{ steps.version.outputs.version }}
 
-            **Assets:**
-            - Android APKs (armeabi-v7a, arm64-v8a, x86_64)
-            - iOS app
-            - Linux desktop app
-            - Windows desktop app
-            - macOS desktop app
+            Multi-platform release built from commit `${{ github.sha }}` on `${{ github.ref_name }}`.
+
+            ### What's New
+            See [CHANGELOG.md](https://github.com/AbabilX/smartwallet/blob/main/CHANGELOG.md) for full release notes.
+
+            ### Downloads
+            | Platform | File | Notes |
+            |----------|------|-------|
+            | 🤖 Android (arm64) | `app-arm64-v8a-release.apk` | Recommended for most devices |
+            | 🤖 Android (armeabi) | `app-armeabi-v7a-release.apk` | Older 32-bit devices |
+            | 🤖 Android (x86_64) | `app-x86_64-release.apk` | Emulators |
+            | 🍎 iOS | `smartwallet-ios.zip` | Requires Xcode to install |
+            | 🐧 Linux | `smartwallet-linux-x64.tar.gz` | Extract and run |
+            | 🪟 Windows | `smartwallet-windows-x64-portable.zip` | Extract and run `smartwallet.exe` |
+            | 🍏 macOS | `smartwallet-macos.zip` | Extract and open app |
+
+            ### Privacy
+            See [PRIVACY_POLICY.md](https://github.com/AbabilX/smartwallet/blob/main/PRIVACY_POLICY.md)
           draft: false
           prerelease: false
           files: |
