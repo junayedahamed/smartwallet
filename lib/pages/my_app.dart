@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
     final colorScheme = baseTheme.colorScheme;
 
     return baseTheme.copyWith(
-      textTheme: GoogleFonts.outfitTextTheme(baseTheme.textTheme), // Bold, modern font
+      textTheme: GoogleFonts.ubuntuTextTheme(baseTheme.textTheme),
       scaffoldBackgroundColor: colorScheme.surface,
       appBarTheme: AppBarTheme(
         centerTitle: true,
@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
         scrolledUnderElevation: 0,
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
-        titleTextStyle: GoogleFonts.outfit(
+        titleTextStyle: GoogleFonts.ubuntu(
           fontSize: 22,
           fontWeight: FontWeight.bold,
           color: colorScheme.onSurface,
@@ -56,7 +56,8 @@ class MyApp extends StatelessWidget {
         elevation: 0,
         color: colorScheme.surfaceContainerLow,
         margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)), // Expressive radius
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28)), // Expressive radius
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -73,7 +74,8 @@ class MyApp extends StatelessWidget {
           borderRadius: BorderRadius.circular(22),
           borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
       navigationBarTheme: NavigationBarThemeData(
         height: 80,
@@ -84,14 +86,16 @@ class MyApp extends StatelessWidget {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           minimumSize: const Size(0, 56),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
           textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(0, 56),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
           side: BorderSide(color: colorScheme.outline, width: 1.5),
           textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
