@@ -4,6 +4,7 @@ import 'package:smartwallet/database/database.dart';
 import 'package:smartwallet/pages/balance_controller.dart';
 import 'package:smartwallet/setting/setting_controller.dart';
 import 'package:smartwallet/utils/double_formatter.dart';
+import 'package:smartwallet/l10n/l10n.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -66,14 +67,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     const SizedBox(height: 14),
                     Text(
-                      "Financial overview",
+                      L10n.tr(context, "financial_overview"),
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      "A quick summary of your wallet health.",
+                      L10n.tr(context, "wallet_health"),
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -97,7 +98,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       width: cardWidth,
                       child: _SummaryCard(
                         icon: Icons.south_west_rounded,
-                        title: "Total Added",
+                        title: L10n.tr(context, "total_added"),
                         color: colorScheme.primaryContainer,
                         child: FutureBuilder<double>(
                           future: WalletDb.instance.lifeTimeEntity(),
@@ -118,7 +119,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       width: cardWidth,
                       child: _SummaryCard(
                         icon: Icons.north_east_rounded,
-                        title: "Total Used",
+                        title: L10n.tr(context, "total_used"),
                         color: colorScheme.errorContainer,
                         child: FutureBuilder<double>(
                           future: WalletDb.instance.lifeTimeUse(),
@@ -147,17 +148,68 @@ class _ProfilePageState extends State<ProfilePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Actions",
+                      L10n.tr(context, "actions"),
                       style: theme.textTheme.titleMedium,
                     ),
                     const SizedBox(height: 12),
+                    AnimatedBuilder(
+                      animation: SettingsController.instance,
+                      builder: (context, _) {
+                        return Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: DropdownButtonFormField<String>(
+                                    key: ValueKey(SettingsController.instance.locale),
+                                    initialValue: SettingsController.instance.locale,
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                      prefixIcon: const Icon(Icons.language_rounded, size: 20),
+                                    ),
+                                    items: const [
+                                      DropdownMenuItem(value: "en", child: Text("English")),
+                                      DropdownMenuItem(value: "bn", child: Text("বাংলা")),
+                                    ],
+                                    onChanged: (val) {
+                                      if (val != null) SettingsController.instance.setLocale(val);
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: DropdownButtonFormField<String>(
+                                    key: ValueKey(SettingsController.instance.currency),
+                                    initialValue: SettingsController.instance.currency,
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                      prefixIcon: const Icon(Icons.monetization_on_rounded, size: 20),
+                                    ),
+                                    items: const [
+                                      DropdownMenuItem(value: "৳", child: Text("BDT (৳)")),
+                                      DropdownMenuItem(value: "\$", child: Text("USD (\$)")),
+                                    ],
+                                    onChanged: (val) {
+                                      if (val != null) SettingsController.instance.setCurrency(val);
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      }
+                    ),
+                    const SizedBox(height: 16),
                     Row(
                       children: [
                         Expanded(
                           child: FilledButton.tonalIcon(
                             onPressed: () => _showConfirmationDialog(context),
                             icon: const Icon(Icons.delete_sweep_outlined),
-                            label: const Text("Reset all"),
+                            label: Text(L10n.tr(context, "reset_all")),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -180,7 +232,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       : Icons.light_mode_outlined,
                                 ),
                                 label:
-                                    Text(isLight ? "Dark mode" : "Light mode"),
+                                    Text(isLight ? L10n.tr(context, "dark_mode") : L10n.tr(context, "light_mode")),
                               );
                             },
                           ),
@@ -202,15 +254,14 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Confirm Reset"),
-          content: const Text(
-              "Are you sure you want to reset the database? This action cannot be undone."),
+          title: Text(L10n.tr(context, "confirm_reset")),
+          content: Text(L10n.tr(context, "confirm_reset_desc")),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: const Text("Cancel"),
+              child: Text(L10n.tr(context, "cancel")),
             ),
             TextButton(
               onPressed: () async {
@@ -224,7 +275,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 }
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: const Text("Reset"),
+              child: Text(L10n.tr(context, "reset")),
             ),
           ],
         );

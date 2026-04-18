@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:smartwallet/database/database.dart';
 import 'package:smartwallet/utils/double_formatter.dart';
+import 'package:smartwallet/l10n/l10n.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
@@ -63,7 +64,7 @@ class _HistoryPageState extends State<HistoryPage> {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            "No transaction history yet.",
+            L10n.tr(context, "no_history_yet"),
             style: theme.textTheme.bodyLarge,
           ),
         ),
@@ -104,7 +105,7 @@ class _HistoryPageState extends State<HistoryPage> {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      "Transaction timeline",
+                      L10n.tr(context, "transaction_timeline"),
                       style: theme.textTheme.titleMedium,
                     ),
                   ],
@@ -125,7 +126,7 @@ class _HistoryPageState extends State<HistoryPage> {
               padding: const EdgeInsets.all(24),
               child: Center(
                 child: Text(
-                  "No transactions found for this period.",
+                  L10n.tr(context, "no_transactions_found_period"),
                   style: theme.textTheme.bodyMedium,
                 ),
               ),
@@ -146,14 +147,14 @@ class _HistoryPageState extends State<HistoryPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        _formatHeaderDate(dateKey),
+                        _formatHeaderDate(context, dateKey),
                         style: theme.textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                       Text(
-                        "Total: ${doubleFormatter(groupedMoneys[dateKey]!.fold(0, (sum, m) => sum + m.amount))}",
+                        "${L10n.tr(context, 'total')} ${doubleFormatter(groupedMoneys[dateKey]!.fold(0, (sum, m) => sum + m.amount))}",
                         style: theme.textTheme.labelMedium?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),
@@ -185,7 +186,7 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
-  String _formatHeaderDate(String dateKey) {
+  String _formatHeaderDate(BuildContext context, String dateKey) {
     final date = DateTime.parse(dateKey);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -193,9 +194,9 @@ class _HistoryPageState extends State<HistoryPage> {
     final transactionDate = DateTime(date.year, date.month, date.day);
 
     if (transactionDate == today) {
-      return "Today";
+      return L10n.tr(context, "today");
     } else if (transactionDate == yesterday) {
-      return "Yesterday";
+      return L10n.tr(context, "yesterday");
     } else {
       return DateFormat("MMMM dd, yyyy").format(date);
     }
@@ -209,7 +210,7 @@ class _HistoryPageState extends State<HistoryPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Filter by date",
+          L10n.tr(context, "filter_by_date"),
           style: theme.textTheme.titleSmall,
         ),
         const SizedBox(height: 12),
@@ -218,7 +219,7 @@ class _HistoryPageState extends State<HistoryPage> {
           child: Row(
             children: [
               _FilterButton(
-                label: "All time",
+                label: L10n.tr(context, "all_time"),
                 isSelected: _filterType == 'all',
                 onPressed: () => setState(() {
                   _filterType = 'all';
@@ -227,7 +228,7 @@ class _HistoryPageState extends State<HistoryPage> {
               ),
               const SizedBox(width: 8),
               _FilterButton(
-                label: "Last 1 day",
+                label: L10n.tr(context, "last_1_day"),
                 isSelected: _filterType == '1day',
                 onPressed: () => setState(() {
                   _filterType = '1day';
@@ -236,7 +237,7 @@ class _HistoryPageState extends State<HistoryPage> {
               ),
               const SizedBox(width: 8),
               _FilterButton(
-                label: "Last 3 days",
+                label: L10n.tr(context, "last_3_days"),
                 isSelected: _filterType == '3days',
                 onPressed: () => setState(() {
                   _filterType = '3days';
@@ -245,7 +246,7 @@ class _HistoryPageState extends State<HistoryPage> {
               ),
               const SizedBox(width: 8),
               _FilterButton(
-                label: "Last 7 days",
+                label: L10n.tr(context, "last_7_days"),
                 isSelected: _filterType == '7days',
                 onPressed: () => setState(() {
                   _filterType = '7days';
@@ -254,7 +255,7 @@ class _HistoryPageState extends State<HistoryPage> {
               ),
               const SizedBox(width: 8),
               _FilterButton(
-                label: "Last 30 days",
+                label: L10n.tr(context, "last_30_days"),
                 isSelected: _filterType == '30days',
                 onPressed: () => setState(() {
                   _filterType = '30days';
@@ -266,7 +267,7 @@ class _HistoryPageState extends State<HistoryPage> {
                 onPressed: () => _showDatePicker(context),
                 icon: const Icon(Icons.calendar_today_rounded),
                 label: _selectedDate == null
-                    ? const Text("Pick date")
+                    ? Text(L10n.tr(context, "pick_date"))
                     : Text(DateFormat("dd MMM").format(_selectedDate!)),
                 style: FilledButton.styleFrom(
                   backgroundColor: _filterType == 'custom'
@@ -342,7 +343,7 @@ class HistoryListTile extends StatelessWidget {
     final amountColor = isIncome ? Colors.green : Colors.red;
 
     final reason = (money.reason == null || money.reason!.trim().isEmpty)
-        ? (isIncome ? "Income" : "Expense")
+        ? (isIncome ? L10n.tr(context, "income") : L10n.tr(context, "expense"))
         : money.reason!.trim();
 
     return Padding(
@@ -382,7 +383,7 @@ class HistoryListTile extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  _getRelativeDate(money.dateTime),
+                  _getRelativeDate(context, money.dateTime),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -418,16 +419,16 @@ class HistoryListTile extends StatelessWidget {
     );
   }
 
-  String _getRelativeDate(DateTime date) {
+  String _getRelativeDate(BuildContext context, DateTime date) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
     final transactionDate = DateTime(date.year, date.month, date.day);
 
     if (transactionDate == today) {
-      return "Today";
+      return L10n.tr(context, "today");
     } else if (transactionDate == yesterday) {
-      return "Yesterday";
+      return L10n.tr(context, "yesterday");
     } else {
       return DateFormat("dd MMM yyyy").format(date);
     }

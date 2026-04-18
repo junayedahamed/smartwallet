@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:smartwallet/database/database.dart';
 import 'package:smartwallet/pages/balance_controller.dart';
+import 'package:smartwallet/setting/setting_controller.dart';
+import 'package:smartwallet/l10n/l10n.dart';
 
 class FirstPage extends StatefulWidget {
   const FirstPage({super.key});
@@ -52,7 +54,7 @@ class _FirstPageState extends State<FirstPage> {
                         ),
                         const SizedBox(height: 18),
                         Text(
-                          "Welcome to SmartWallet",
+                          L10n.tr(context, "welcome"),
                           style: theme.textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
@@ -60,13 +62,61 @@ class _FirstPageState extends State<FirstPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Set your starting values once. You can update your tracking anytime.",
+                          L10n.tr(context, "set_starting_values"),
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 20),
+                        // Language Dropdown
+                        AnimatedBuilder(
+                          animation: SettingsController.instance,
+                          builder: (context, _) {
+                            return DropdownButtonFormField<String>(
+                              key: ValueKey(SettingsController.instance.locale),
+                              initialValue: SettingsController.instance.locale,
+                              decoration: InputDecoration(
+                                labelText: L10n.tr(context, "language"),
+                                prefixIcon: const Icon(Icons.language_rounded),
+                              ),
+                              items: const [
+                                DropdownMenuItem(value: "en", child: Text("English")),
+                                DropdownMenuItem(value: "bn", child: Text("বাংলা")),
+                              ],
+                              onChanged: (val) {
+                                if (val != null) SettingsController.instance.setLocale(val);
+                                setState(() {
+                                  // Update validation strings locally by resetting the form validation
+                                  _formKey.currentState?.validate();
+                                });
+                              },
+                            );
+                          }
+                        ),
+                        const SizedBox(height: 12),
+                        // Currency Dropdown
+                        AnimatedBuilder(
+                          animation: SettingsController.instance,
+                          builder: (context, _) {
+                            return DropdownButtonFormField<String>(
+                              key: ValueKey(SettingsController.instance.currency),
+                              initialValue: SettingsController.instance.currency,
+                              decoration: InputDecoration(
+                                labelText: L10n.tr(context, "currency"),
+                                prefixIcon: const Icon(Icons.monetization_on_rounded),
+                              ),
+                              items: const [
+                                DropdownMenuItem(value: "৳", child: Text("BDT (৳) - Taka")),
+                                DropdownMenuItem(value: "\$", child: Text("USD (\$) - Dollar")),
+                              ],
+                              onChanged: (val) {
+                                if (val != null) SettingsController.instance.setCurrency(val);
+                              },
+                            );
+                          }
+                        ),
+                        const SizedBox(height: 12),
                         TextFormField(
                           controller: balanceController,
                           keyboardType: TextInputType.number,
@@ -76,11 +126,9 @@ class _FirstPageState extends State<FirstPage> {
                           ],
                           validator: _validateBalance,
                           decoration: InputDecoration(
-                            labelText: "Initial balance",
-                            helperText:
-                                "Whole number only • max ${WalletDb.maxTransactionAmount}",
-                            prefixIcon:
-                                const Icon(Icons.account_balance_wallet),
+                            labelText: L10n.tr(context, "initial_balance"),
+                            helperText: "${L10n.tr(context, 'whole_number_max')} ${WalletDb.maxTransactionAmount}",
+                            prefixIcon: const Icon(Icons.account_balance_wallet),
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -92,17 +140,17 @@ class _FirstPageState extends State<FirstPage> {
                             LengthLimitingTextInputFormatter(6),
                           ],
                           validator: _validateDailyNeed,
-                          decoration: const InputDecoration(
-                            labelText: "Daily need",
-                            helperText: "Must be greater than 0",
-                            prefixIcon: Icon(Icons.calendar_today_rounded),
+                          decoration: InputDecoration(
+                            labelText: L10n.tr(context, "daily_need"),
+                            helperText: L10n.tr(context, "greater_than_0"),
+                            prefixIcon: const Icon(Icons.calendar_today_rounded),
                           ),
                         ),
                         const SizedBox(height: 20),
                         FilledButton.icon(
                           onPressed: _submitSetup,
                           icon: const Icon(Icons.trending_up_rounded),
-                          label: const Text("Start Tracking"),
+                          label: Text(L10n.tr(context, "start_tracking")),
                         ),
                       ],
                     ),
@@ -118,36 +166,36 @@ class _FirstPageState extends State<FirstPage> {
 
   String? _validateBalance(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return "Please add your starting balance";
+      return L10n.tr(context, "add_initial_balance");
     }
 
     final parsed = int.tryParse(value);
     if (parsed == null) {
-      return "Balance must be a whole number";
+      return L10n.tr(context, "balance_whole_number");
     }
     if (parsed < 0) {
-      return "Balance cannot be negative";
+      return L10n.tr(context, "balance_not_negative");
     }
     if (parsed > WalletDb.maxTransactionAmount) {
-      return "Maximum balance is ${WalletDb.maxTransactionAmount}";
+      return "${L10n.tr(context, 'max_balance_is')} ${WalletDb.maxTransactionAmount}";
     }
     return null;
   }
 
   String? _validateDailyNeed(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return "Please add your daily need";
+      return L10n.tr(context, "add_daily_need");
     }
 
     final parsed = int.tryParse(value);
     if (parsed == null) {
-      return "Daily need must be a whole number";
+      return L10n.tr(context, "balance_whole_number");
     }
     if (parsed <= 0) {
-      return "Daily need must be greater than 0";
+      return L10n.tr(context, "greater_than_0");
     }
     if (parsed > WalletDb.maxTransactionAmount) {
-      return "Please enter a realistic daily value";
+      return "${L10n.tr(context, 'max_balance_is')} ${WalletDb.maxTransactionAmount}";
     }
     return null;
   }

@@ -6,6 +6,7 @@ import 'package:smartwallet/pages/balance_controller.dart';
 import 'package:smartwallet/pages/history.dart';
 import 'package:smartwallet/pages/profile.dart';
 import 'package:smartwallet/utils/double_formatter.dart';
+import 'package:smartwallet/l10n/l10n.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -50,18 +51,18 @@ class _HomePageState extends State<HomePage> {
               currentTab = value;
             });
           },
-          tabs: const [
+          tabs: [
             GButton(
               icon: Icons.home_rounded,
-              text: "Home",
+              text: L10n.tr(context, "home"),
             ),
             GButton(
               icon: Icons.history,
-              text: "History",
+              text: L10n.tr(context, "history"),
             ),
             GButton(
               icon: Icons.person_rounded,
-              text: "Profile",
+              text: L10n.tr(context, "profile"),
             ),
           ],
         ),
@@ -79,10 +80,10 @@ class _HomePageState extends State<HomePage> {
 
   AppBar? _buildAppBar() {
     if (currentTab == 1) {
-      return AppBar(title: const Text("History"));
+      return AppBar(title: Text(L10n.tr(context, "history")));
     }
     if (currentTab == 2) {
-      return AppBar(title: const Text("Profile"));
+      return AppBar(title: Text(L10n.tr(context, "profile")));
     }
     return null;
   }
@@ -112,7 +113,7 @@ class _HomePageState extends State<HomePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Add a transaction",
+                          L10n.tr(context, "add_transaction"),
                           style: theme.textTheme.titleMedium,
                         ),
                         const SizedBox(height: 12),
@@ -120,9 +121,9 @@ class _HomePageState extends State<HomePage> {
                           controller: reasonController,
                           textInputAction: TextInputAction.next,
                           maxLength: 60,
-                          decoration: const InputDecoration(
-                            labelText: "Reason (optional)",
-                            hintText: "Groceries, Salary, Rent...",
+                          decoration: InputDecoration(
+                            labelText: L10n.tr(context, "reason_optional"),
+                            hintText: L10n.tr(context, "reason_hint"),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -136,10 +137,10 @@ class _HomePageState extends State<HomePage> {
                           ],
                           validator: _amountValidator,
                           decoration: InputDecoration(
-                            labelText: "Amount",
+                            labelText: L10n.tr(context, "amount"),
                             hintText: "0",
                             helperText:
-                                "Whole number only • max ${WalletDb.maxTransactionAmount}",
+                                "${L10n.tr(context, 'whole_number_max')} ${WalletDb.maxTransactionAmount}",
                           ),
                         ),
                         const SizedBox(height: 14),
@@ -151,9 +152,9 @@ class _HomePageState extends State<HomePage> {
                                   isAddition: false,
                                 ),
                                 icon: const Icon(Icons.remove_circle_rounded, size: 24),
-                                label: const Text(
-                                  "Use",
-                                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
+                                label: Text(
+                                  L10n.tr(context, "use"),
+                                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
                                 ),
                                 style: FilledButton.styleFrom(
                                   backgroundColor: theme.colorScheme.errorContainer,
@@ -171,9 +172,9 @@ class _HomePageState extends State<HomePage> {
                                   isAddition: true,
                                 ),
                                 icon: const Icon(Icons.add_circle_rounded, size: 24),
-                                label: const Text(
-                                  "Add",
-                                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
+                                label: Text(
+                                  L10n.tr(context, "add"),
+                                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
                                 ),
                                 style: FilledButton.styleFrom(
                                   backgroundColor: theme.colorScheme.primary,
@@ -197,7 +198,7 @@ class _HomePageState extends State<HomePage> {
                   child: Padding(
                     padding: const EdgeInsets.all(20),
                     child: Text(
-                      "No transactions yet. Add your first entry above.",
+                      L10n.tr(context, "no_transactions_add_first"),
                       style: theme.textTheme.bodyMedium,
                     ),
                   ),
@@ -212,7 +213,7 @@ class _HomePageState extends State<HomePage> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 6),
                           child: Text(
-                            "Recent transactions",
+                            L10n.tr(context, "recent_transactions"),
                             style: theme.textTheme.titleMedium,
                           ),
                         ),
@@ -267,7 +268,7 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Wallet Balance",
+                      L10n.tr(context, "wallet_balance"),
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
                         fontWeight: FontWeight.w600,
@@ -307,7 +308,7 @@ class _HomePageState extends State<HomePage> {
                       Icon(Icons.timer_rounded, color: colorScheme.onPrimaryContainer, size: 18),
                       const SizedBox(width: 8),
                       Text(
-                        "Est. $daysLeft days remaining",
+                        L10n.tr(context, "est_days_remaining", {"days": daysLeft.toString()}),
                         style: theme.textTheme.titleSmall?.copyWith(
                           color: colorScheme.onPrimaryContainer,
                           fontWeight: FontWeight.bold,
@@ -326,18 +327,18 @@ class _HomePageState extends State<HomePage> {
 
   String? _amountValidator(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return "Enter an amount";
+      return L10n.tr(context, "balance_whole_number"); // Fallback
     }
 
     final parsedAmount = int.tryParse(value);
     if (parsedAmount == null) {
-      return "Amount must be a whole number";
+      return L10n.tr(context, "balance_whole_number");
     }
     if (parsedAmount <= 0) {
-      return "Amount must be greater than 0";
+      return L10n.tr(context, "greater_than_0");
     }
     if (parsedAmount > WalletDb.maxTransactionAmount) {
-      return "Maximum amount is ${WalletDb.maxTransactionAmount}";
+      return "${L10n.tr(context, 'max_balance_is')} ${WalletDb.maxTransactionAmount}";
     }
 
     return null;
@@ -351,12 +352,12 @@ class _HomePageState extends State<HomePage> {
     final parsedAmount = int.parse(amountController.text.trim());
     final currentBalance = WalletDb.instance.totalAmount();
     if (!isAddition && parsedAmount > currentBalance) {
-      _showMessage("Not enough balance for this transaction.");
+      _showMessage(L10n.tr(context, "not_enough_balance"));
       return;
     }
 
     final trimmedReason = reasonController.text.trim();
-    final fallbackReason = isAddition ? "Money added" : "Money used";
+    final fallbackReason = isAddition ? L10n.tr(context, "money_added") : L10n.tr(context, "money_used");
     final success = WalletDb.instance.addMoney(
       Money(
         isAddition ? parsedAmount.toDouble() : -parsedAmount.toDouble(),
@@ -366,14 +367,14 @@ class _HomePageState extends State<HomePage> {
 
     if (!success) {
       _showMessage(
-          "Amount must be between 1 and ${WalletDb.maxTransactionAmount}.");
+          "${L10n.tr(context, 'max_balance_is')} ${WalletDb.maxTransactionAmount}");
       return;
     }
 
     amountController.clear();
     reasonController.clear();
     FocusScope.of(context).unfocus();
-    _showMessage(isAddition ? "Money added." : "Money used.");
+    _showMessage(isAddition ? L10n.tr(context, "money_added") : L10n.tr(context, "money_used"));
   }
 
   void _showMessage(String message) {

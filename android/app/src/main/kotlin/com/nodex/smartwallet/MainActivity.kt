@@ -1,4 +1,4 @@
-package com.abartil.smartwallet
+package com.nodex.smartwallet
 
 import io.flutter.embedding.android.FlutterActivity
 
