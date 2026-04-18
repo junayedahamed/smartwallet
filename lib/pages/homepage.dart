@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:smartwallet/database/database.dart';
 import 'package:smartwallet/pages/balance_controller.dart';
 import 'package:smartwallet/pages/history.dart';
@@ -45,7 +46,11 @@ class _HomePageState extends State<HomePage> {
           ? FloatingActionButton.extended(
               onPressed: () => WalletDb.instance
                   .exportHistoryToPdf(ScaffoldMessenger.of(context), context),
-              icon: const Icon(Icons.picture_as_pdf_rounded),
+              icon: HugeIcon(
+                icon: HugeIcons.strokeRoundedPdf01,
+                color: Colors.white,
+                size: 22,
+              ),
               label: const Text("Export PDF"),
             )
           : null,
@@ -125,7 +130,11 @@ class _HomePageState extends State<HomePage> {
                                 onPressed: () => _submitTransaction(
                                   isAddition: false,
                                 ),
-                                icon: const Icon(Icons.remove_circle_rounded,
+                                icon: HugeIcon(
+                                    icon: HugeIcons.strokeRoundedMinusSign,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onErrorContainer,
                                     size: 24),
                                 label: Text(
                                   L10n.tr(context, "use"),
@@ -152,7 +161,10 @@ class _HomePageState extends State<HomePage> {
                                 onPressed: () => _submitTransaction(
                                   isAddition: true,
                                 ),
-                                icon: const Icon(Icons.add_circle_rounded,
+                                icon: HugeIcon(
+                                    icon: HugeIcons.strokeRoundedPlusSign,
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
                                     size: 24),
                                 label: Text(
                                   L10n.tr(context, "add"),
@@ -265,8 +277,8 @@ class _HomePageState extends State<HomePage> {
                         letterSpacing: 0.5,
                       ),
                     ),
-                    Icon(
-                      Icons.account_balance_wallet_rounded,
+                    HugeIcon(
+                      icon: HugeIcons.strokeRoundedWallet01,
                       color: colorScheme.onPrimaryContainer,
                       size: 28,
                     ),
@@ -298,8 +310,10 @@ class _HomePageState extends State<HomePage> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.timer_rounded,
-                          color: colorScheme.onPrimaryContainer, size: 18),
+                      HugeIcon(
+                          icon: HugeIcons.strokeRoundedClock01,
+                          color: colorScheme.onPrimaryContainer,
+                          size: 18),
                       const SizedBox(width: 8),
                       Text(
                         L10n.tr(context, "est_days_remaining",
@@ -379,13 +393,21 @@ class _HomePageState extends State<HomePage> {
   Widget _buildFloatingNavBar(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final items = [
-      (Icons.home_rounded, Icons.home_rounded, L10n.tr(context, "home")),
       (
-        Icons.history_rounded,
-        Icons.history_rounded,
+        HugeIcons.strokeRoundedHome01,
+        HugeIcons.strokeRoundedHome01,
+        L10n.tr(context, "home")
+      ),
+      (
+        HugeIcons.strokeRoundedClock01,
+        HugeIcons.strokeRoundedClock01,
         L10n.tr(context, "history")
       ),
-      (Icons.person_rounded, Icons.person_rounded, L10n.tr(context, "profile")),
+      (
+        HugeIcons.strokeRoundedUser,
+        HugeIcons.strokeRoundedUser,
+        L10n.tr(context, "profile")
+      ),
     ];
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -424,8 +446,8 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Icon(
-                        items[i].$1,
+                      HugeIcon(
+                        icon: items[i].$1,
                         size: 22,
                         color: selected
                             ? colorScheme.onPrimaryContainer

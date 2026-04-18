@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 import 'package:smartwallet/database/database.dart';
 import 'package:smartwallet/utils/double_formatter.dart';
@@ -138,9 +139,11 @@ class _HistoryPageState extends State<HistoryPage> {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                    color: colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -168,13 +171,15 @@ class _HistoryPageState extends State<HistoryPage> {
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final money = groupedMoneys[dateKey]![index];
-                  final allReversed = WalletDb.instance.getMoneyList().reversed.toList();
+                  final allReversed =
+                      WalletDb.instance.getMoneyList().reversed.toList();
                   final transactionIndex = allReversed.indexOf(money);
-                  
+
                   return HistoryListTile(
                     money: money,
                     balance: doubleFormatter(
-                      WalletDb.instance.balanceAtIndex(allReversed.length - transactionIndex - 1),
+                      WalletDb.instance.balanceAtIndex(
+                          allReversed.length - transactionIndex - 1),
                     ),
                   );
                 },
@@ -265,7 +270,10 @@ class _HistoryPageState extends State<HistoryPage> {
               const SizedBox(width: 8),
               FilledButton.icon(
                 onPressed: () => _showDatePicker(context),
-                icon: const Icon(Icons.calendar_today_rounded),
+                icon: HugeIcon(
+                    icon: HugeIcons.strokeRoundedCalendar01,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    size: 20),
                 label: _selectedDate == null
                     ? Text(L10n.tr(context, "pick_date"))
                     : Text(DateFormat("dd MMM").format(_selectedDate!)),
@@ -337,7 +345,7 @@ class HistoryListTile extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isIncome = money.amount >= 0;
-    
+
     final iconColor = isIncome ? Colors.green : Colors.red;
     final bgColor = iconColor.withValues(alpha: 0.1);
     final amountColor = isIncome ? Colors.green : Colors.red;
@@ -359,8 +367,10 @@ class HistoryListTile extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Center(
-              child: Icon(
-                isIncome ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
+              child: HugeIcon(
+                icon: isIncome
+                    ? HugeIcons.strokeRoundedArrowUp01
+                    : HugeIcons.strokeRoundedArrowDown01,
                 color: iconColor,
                 size: 20,
               ),
