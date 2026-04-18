@@ -153,91 +153,111 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     const SizedBox(height: 12),
                     AnimatedBuilder(
+                        animation: SettingsController.instance,
+                        builder: (context, _) {
+                          return Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: DropdownButtonFormField<String>(
+                                      key: ValueKey(
+                                          SettingsController.instance.locale),
+                                      initialValue:
+                                          SettingsController.instance.locale,
+                                      decoration: InputDecoration(
+                                        isDense: true,
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 14, vertical: 12),
+                                        prefixIcon: const Icon(
+                                            Icons.language_rounded,
+                                            size: 20),
+                                      ),
+                                      items: const [
+                                        DropdownMenuItem(
+                                            value: "en",
+                                            child: Text("English")),
+                                        DropdownMenuItem(
+                                            value: "bn", child: Text("বাংলা")),
+                                      ],
+                                      onChanged: (val) {
+                                        if (val != null)
+                                          SettingsController.instance
+                                              .setLocale(val);
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: DropdownButtonFormField<String>(
+                                      key: ValueKey(
+                                          SettingsController.instance.currency),
+                                      initialValue:
+                                          SettingsController.instance.currency,
+                                      decoration: InputDecoration(
+                                        isDense: true,
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 14, vertical: 12),
+                                        prefixIcon: const Icon(
+                                            Icons.monetization_on_rounded,
+                                            size: 20),
+                                      ),
+                                      items: const [
+                                        DropdownMenuItem(
+                                            value: "৳", child: Text("BDT (৳)")),
+                                        DropdownMenuItem(
+                                            value: "\$",
+                                            child: Text("USD (\$)")),
+                                      ],
+                                      onChanged: (val) {
+                                        if (val != null)
+                                          SettingsController.instance
+                                              .setCurrency(val);
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        }),
+                    const SizedBox(height: 16),
+                    FilledButton.tonalIcon(
+                      onPressed: () => _showConfirmationDialog(context),
+                      icon: const Icon(Icons.delete_sweep_outlined),
+                      label: Text(L10n.tr(context, "reset_all")),
+                    ),
+                    const SizedBox(height: 12),
+                    AnimatedBuilder(
                       animation: SettingsController.instance,
                       builder: (context, _) {
-                        return Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: DropdownButtonFormField<String>(
-                                    key: ValueKey(SettingsController.instance.locale),
-                                    initialValue: SettingsController.instance.locale,
-                                    decoration: InputDecoration(
-                                      isDense: true,
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                      prefixIcon: const Icon(Icons.language_rounded, size: 20),
-                                    ),
-                                    items: const [
-                                      DropdownMenuItem(value: "en", child: Text("English")),
-                                      DropdownMenuItem(value: "bn", child: Text("বাংলা")),
-                                    ],
-                                    onChanged: (val) {
-                                      if (val != null) SettingsController.instance.setLocale(val);
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: DropdownButtonFormField<String>(
-                                    key: ValueKey(SettingsController.instance.currency),
-                                    initialValue: SettingsController.instance.currency,
-                                    decoration: InputDecoration(
-                                      isDense: true,
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                      prefixIcon: const Icon(Icons.monetization_on_rounded, size: 20),
-                                    ),
-                                    items: const [
-                                      DropdownMenuItem(value: "৳", child: Text("BDT (৳)")),
-                                      DropdownMenuItem(value: "\$", child: Text("USD (\$)")),
-                                    ],
-                                    onChanged: (val) {
-                                      if (val != null) SettingsController.instance.setCurrency(val);
-                                    },
-                                  ),
-                                ),
-                              ],
+                        return SegmentedButton<ThemeMode>(
+                          showSelectedIcon: false,
+                          segments: const [
+                            ButtonSegment(
+                              value: ThemeMode.light,
+                              icon: Icon(Icons.light_mode_outlined),
+                              label: Text("Light"),
+                            ),
+                            ButtonSegment(
+                              value: ThemeMode.system,
+                              icon: Icon(Icons.brightness_auto_outlined),
+                              label: Text("System"),
+                            ),
+                            ButtonSegment(
+                              value: ThemeMode.dark,
+                              icon: Icon(Icons.dark_mode_outlined),
+                              label: Text("Dark"),
                             ),
                           ],
+                          selected: {SettingsController.instance.themeMode},
+                          onSelectionChanged: (val) {
+                            SettingsController.instance.setThemeMode(val.first);
+                          },
                         );
-                      }
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: FilledButton.tonalIcon(
-                            onPressed: () => _showConfirmationDialog(context),
-                            icon: const Icon(Icons.delete_sweep_outlined),
-                            label: Text(L10n.tr(context, "reset_all")),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: AnimatedBuilder(
-                            animation: SettingsController.instance,
-                            builder: (context, snapshot) {
-                              final brightness = Theme.of(context).brightness;
-                              final isLight = brightness == Brightness.light;
-
-                              return OutlinedButton.icon(
-                                onPressed: () {
-                                  SettingsController.instance.setThemeMode(
-                                    isLight ? ThemeMode.dark : ThemeMode.light,
-                                  );
-                                },
-                                icon: Icon(
-                                  isLight
-                                      ? Icons.dark_mode_outlined
-                                      : Icons.light_mode_outlined,
-                                ),
-                                label:
-                                    Text(isLight ? L10n.tr(context, "dark_mode") : L10n.tr(context, "light_mode")),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
+                      },
                     ),
                   ],
                 ),
