@@ -165,7 +165,18 @@ class WalletDb {
     ));
     String? path;
     try {
-      if (Platform.isMacOS || Platform.isWindows || Platform.isAndroid) {
+      if (Platform.isAndroid) {
+        // For Android 13+, save directly to Downloads folder
+        final fileName = "history_${DateTime.now().microsecondsSinceEpoch}.pdf";
+        final downloadDir = Directory('/storage/emulated/0/Download');
+
+        // Create Downloads directory if it doesn't exist
+        if (!downloadDir.existsSync()) {
+          downloadDir.createSync(recursive: true);
+        }
+
+        path = p.join(downloadDir.path, fileName);
+      } else if (Platform.isMacOS || Platform.isWindows) {
         final fileName = DateTime.now().microsecondsSinceEpoch.toString();
         path = await FilePicker.saveFile(
           allowedExtensions: ["pdf"],
@@ -223,10 +234,11 @@ class WalletDb {
       File file = File(path);
       file.writeAsBytesSync(bytes);
       messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(const SnackBar(content: Text("File saved.")));
+      messenger.showSnackBar(SnackBar(
+          content: Text("File saved to Downloads: ${p.basename(path)}")));
     } catch (e) {
       messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(SnackBar(content: Text("$e")));
+      messenger.showSnackBar(SnackBar(content: Text("Error: $e")));
     }
   }
 }
